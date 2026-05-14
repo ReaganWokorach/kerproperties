@@ -1,10 +1,10 @@
-# 🏠 Prestige Properties
+# Prestige Properties
 
 > **Uganda's Prestige Property Partner** — A full-featured, client-side real estate web application for buying land and renting homes across all districts of Uganda.
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
 1. [Project Overview](#project-overview)
 2. [Live Journey — What the Website Does](#live-journey)
