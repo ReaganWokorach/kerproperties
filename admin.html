@@ -618,8 +618,14 @@
        ADMIN PAGE SCRIPT
        ════════════════════════════════════════════ */
 
-    /* Auth guard */
-    if (!localStorage.getItem("pp_admin")) {
+    /* Auth guard — strict value check, no redirect loop */
+    try {
+      if (localStorage.getItem("pp_admin") !== "true") {
+        localStorage.removeItem("pp_admin"); /* clear any corrupt value */
+        window.location.href = "login.html";
+      }
+    } catch (e) {
+      /* localStorage blocked — redirect to login */
       window.location.href = "login.html";
     }
 

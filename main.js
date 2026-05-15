@@ -830,8 +830,9 @@ function initLogin() {
   const status = document.getElementById("loginStatus");
   if (!form) return;
 
-  /* If already logged in → go to admin */
-  if (localStorage.getItem("pp_admin")) {
+  /* Auto-redirect only when actually on login.html — prevents loop on other pages */
+  const onLoginPage = window.location.pathname.includes("login");
+  if (onLoginPage && localStorage.getItem("pp_admin") === "true") {
     window.location.href = "admin.html";
     return;
   }
@@ -901,8 +902,14 @@ function initLogin() {
    17. ADMIN PAGE — full dashboard
    ============================================================ */
 function initAdmin() {
-  /* Auth guard */
-  if (!localStorage.getItem("pp_admin")) {
+  /* Only run on admin.html — prevents redirect loop on other pages */
+  const onAdminPage = window.location.pathname.includes("admin");
+  if (!onAdminPage) return;
+
+  /* Strict value check — any value other than exactly "true" is rejected */
+  const isAuthed = localStorage.getItem("pp_admin") === "true";
+  if (!isAuthed) {
+    localStorage.removeItem("pp_admin"); /* clear any corrupt/stale value */
     window.location.href = "login.html";
     return;
   }

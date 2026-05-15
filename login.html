@@ -383,8 +383,14 @@
   <script src="main.js"></script>
   <script>
     /* ── Auto-redirect if already logged in ── */
-    if (localStorage.getItem("pp_admin")) {
-      window.location.href = "admin.html";
+    /* Strict check: only redirect if value is exactly "true" */
+    try {
+      if (localStorage.getItem("pp_admin") === "true") {
+        window.location.href = "admin.html";
+      }
+    } catch (e) {
+      /* localStorage blocked (private mode etc) — do nothing, show login form */
+      console.warn("localStorage unavailable:", e);
     }
 
     /* ── Password show/hide — login field ── */
