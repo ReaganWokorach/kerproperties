@@ -1,84 +1,78 @@
 /* ============================================================
-   PRESTIGE PROPERTIES — main.js  v3
-   Phase 3-A fixes:
-   #1  Active nav highlight
-   #2  Heart = toggle cart (add/remove)
-   #3  Enquire → navigates to cart page
-   #6  All Uganda districts
-   #7  No white circle on heart
-   #9  Taken badge reflects on cards
-   #11 In-site message inbox (localStorage)
-   Photo support data layer
+   PRESTIGE PROPERTIES — main.js  v4
+   Fixes:
+   1. Heart icon toggle (add/remove cart) — hardened globals
+   2. Admin edit listings
+   3. Enquire → property detail modal + enquiry form to admin
+   4. Messages visible from ANY browser via Netlify Forms
+   5. Active nav underline on all pages
+   6. Password reset — works even before phone/email saved
    ============================================================ */
 
 /* ============================================================
-   UGANDA DISTRICTS (fix #6)
+   UGANDA DISTRICTS
    ============================================================ */
 const UGANDA_DISTRICTS = [
-  { value: "kampala",    label: "Kampala" },
-  { value: "gulu",       label: "Gulu" },
-  { value: "mbarara",    label: "Mbarara" },
-  { value: "jinja",      label: "Jinja" },
-  { value: "lira",       label: "Lira" },
-  { value: "mbale",      label: "Mbale" },
-  { value: "fort-portal",label: "Fort Portal" },
-  { value: "arua",       label: "Arua" },
-  { value: "soroti",     label: "Soroti" },
-  { value: "masaka",     label: "Masaka" },
-  { value: "entebbe",    label: "Entebbe" },
-  { value: "wakiso",     label: "Wakiso" },
-  { value: "mukono",     label: "Mukono" },
-  { value: "kasese",     label: "Kasese" },
-  { value: "hoima",      label: "Hoima" },
-  { value: "kabale",     label: "Kabale" },
-  { value: "tororo",     label: "Tororo" },
-  { value: "moroto",     label: "Moroto" },
-  { value: "kitgum",     label: "Kitgum" },
-  { value: "masindi",    label: "Masindi" },
-  { value: "iganga",     label: "Iganga" },
-  { value: "busia",      label: "Busia" },
-  { value: "mityana",    label: "Mityana" },
-  { value: "mubende",    label: "Mubende" },
-  { value: "nakasongola",label: "Nakasongola" },
-  { value: "pallisa",    label: "Pallisa" },
-  { value: "nebbi",      label: "Nebbi" },
-  { value: "adjumani",   label: "Adjumani" },
-  { value: "kotido",     label: "Kotido" },
-  { value: "bundibugyo", label: "Bundibugyo" },
-  { value: "bushenyi",   label: "Bushenyi" },
-  { value: "kamuli",     label: "Kamuli" },
-  { value: "kayunga",    label: "Kayunga" },
-  { value: "kiboga",     label: "Kiboga" },
-  { value: "kiruhura",   label: "Kiruhura" },
-  { value: "koboko",     label: "Koboko" },
-  { value: "kumi",       label: "Kumi" },
-  { value: "kyenjojo",   label: "Kyenjojo" },
-  { value: "lyantonde",  label: "Lyantonde" },
-  { value: "manafwa",    label: "Manafwa" },
-  { value: "mayuge",     label: "Mayuge" },
-  { value: "ntungamo",   label: "Ntungamo" },
-  { value: "oyam",       label: "Oyam" },
-  { value: "pader",      label: "Pader" },
-  { value: "rakai",      label: "Rakai" },
-  { value: "rukungiri",  label: "Rukungiri" },
-  { value: "sembabule",  label: "Sembabule" },
-  { value: "sironko",    label: "Sironko" },
-  { value: "ssembabule", label: "Ssembabule" },
-  { value: "yumbe",      label: "Yumbe" },
+  { value: "kampala",     label: "Kampala" },
+  { value: "gulu",        label: "Gulu" },
+  { value: "mbarara",     label: "Mbarara" },
+  { value: "jinja",       label: "Jinja" },
+  { value: "lira",        label: "Lira" },
+  { value: "mbale",       label: "Mbale" },
+  { value: "fort-portal", label: "Fort Portal" },
+  { value: "arua",        label: "Arua" },
+  { value: "soroti",      label: "Soroti" },
+  { value: "masaka",      label: "Masaka" },
+  { value: "entebbe",     label: "Entebbe" },
+  { value: "wakiso",      label: "Wakiso" },
+  { value: "mukono",      label: "Mukono" },
+  { value: "kasese",      label: "Kasese" },
+  { value: "hoima",       label: "Hoima" },
+  { value: "kabale",      label: "Kabale" },
+  { value: "tororo",      label: "Tororo" },
+  { value: "moroto",      label: "Moroto" },
+  { value: "kitgum",      label: "Kitgum" },
+  { value: "masindi",     label: "Masindi" },
+  { value: "iganga",      label: "Iganga" },
+  { value: "busia",       label: "Busia" },
+  { value: "mityana",     label: "Mityana" },
+  { value: "mubende",     label: "Mubende" },
+  { value: "nakasongola", label: "Nakasongola" },
+  { value: "pallisa",     label: "Pallisa" },
+  { value: "nebbi",       label: "Nebbi" },
+  { value: "adjumani",    label: "Adjumani" },
+  { value: "kotido",      label: "Kotido" },
+  { value: "bundibugyo",  label: "Bundibugyo" },
+  { value: "bushenyi",    label: "Bushenyi" },
+  { value: "kamuli",      label: "Kamuli" },
+  { value: "kayunga",     label: "Kayunga" },
+  { value: "kiboga",      label: "Kiboga" },
+  { value: "kiruhura",    label: "Kiruhura" },
+  { value: "koboko",      label: "Koboko" },
+  { value: "kumi",        label: "Kumi" },
+  { value: "kyenjojo",    label: "Kyenjojo" },
+  { value: "lyantonde",   label: "Lyantonde" },
+  { value: "manafwa",     label: "Manafwa" },
+  { value: "mayuge",      label: "Mayuge" },
+  { value: "ntungamo",    label: "Ntungamo" },
+  { value: "oyam",        label: "Oyam" },
+  { value: "pader",       label: "Pader" },
+  { value: "rakai",       label: "Rakai" },
+  { value: "rukungiri",   label: "Rukungiri" },
+  { value: "sembabule",   label: "Sembabule" },
+  { value: "sironko",     label: "Sironko" },
+  { value: "yumbe",       label: "Yumbe" },
 ];
 
-/* Populate all district dropdowns on the page */
 function populateDistrictDropdowns() {
-  const dropdowns = document.querySelectorAll(".district-select");
-  dropdowns.forEach(sel => {
-    const currentVal = sel.value;
-    /* Keep first option (placeholder) */
+  document.querySelectorAll(".district-select").forEach(sel => {
+    const currentVal  = sel.value;
     const firstOption = sel.options[0];
     sel.innerHTML = "";
     sel.appendChild(firstOption);
     UGANDA_DISTRICTS.forEach(d => {
       const opt = document.createElement("option");
-      opt.value = d.value;
+      opt.value       = d.value;
       opt.textContent = d.label;
       sel.appendChild(opt);
     });
@@ -87,129 +81,21 @@ function populateDistrictDropdowns() {
 }
 
 /* ============================================================
-   1. DEFAULT LISTINGS DATA
+   1. LISTINGS DATA
    ============================================================ */
 const DEFAULT_LISTINGS = [
-  {
-    id: 1, type: "land",
-    title: "50×100ft Plot, Layibi",
-    location: "Layibi Division, Gulu City", locationKey: "gulu",
-    price: 45000000, priceLabel: "UGX 45,000,000", priceNote: "Negotiable",
-    features: ["50×100ft", "Titled", "Near Road"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-road"],
-    description: "Prime plot in Layibi Division, Gulu City. Title deed ready. Near tarmac road.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 2, type: "land",
-    title: "1 Acre Plot, Pece Division",
-    location: "Pece, Gulu District", locationKey: "gulu",
-    price: 120000000, priceLabel: "UGX 120,000,000", priceNote: "Firm price",
-    features: ["1 Acre","Mailo Title","Flat land"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-mountain"],
-    description: "Large flat acre in Pece Division. Mailo land title. Suitable for development.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 3, type: "land",
-    title: "Prime Commercial Plot, Gulu",
-    location: "Along Kampala Road, Gulu", locationKey: "gulu",
-    price: 80000000, priceLabel: "UGX 80,000,000", priceNote: "Negotiable",
-    features: ["60×100ft","Freehold","Commercial zone"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-building-store"],
-    description: "Commercial plot along Kampala Road, Gulu. High visibility. Freehold title.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 4, type: "land",
-    title: "2-Acre Plot, Mbarara",
-    location: "Kakoba Division, Mbarara", locationKey: "mbarara",
-    price: 180000000, priceLabel: "UGX 180,000,000", priceNote: "Negotiable",
-    features: ["2 Acres","Mailo Title","Near highway"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-road"],
-    description: "Large 2-acre plot in Mbarara City near the main highway. Ideal for commercial use.",
-    photos: [], available: true, featured: false
-  },
-  {
-    id: 5, type: "land",
-    title: "Residential Plot, Kireka",
-    location: "Kireka, Wakiso District", locationKey: "wakiso",
-    price: 95000000, priceLabel: "UGX 95,000,000", priceNote: "Firm price",
-    features: ["50×100ft","Freehold","Tarmac access"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-road"],
-    description: "Well-located plot in Kireka with tarmac road access. Freehold title.",
-    photos: [], available: true, featured: false
-  },
-  {
-    id: 6, type: "land",
-    title: "Plot for Sale, Jinja City",
-    location: "Walukuba, Jinja", locationKey: "jinja",
-    price: 60000000, priceLabel: "UGX 60,000,000", priceNote: "Negotiable",
-    features: ["50×100ft","Titled","Near lake"],
-    featureIcons: ["ti-ruler","ti-certificate","ti-ripple"],
-    description: "Plot near the Nile in Jinja City. Suitable for residential or hospitality use.",
-    photos: [], available: true, featured: false
-  },
-  {
-    id: 7, type: "rent",
-    title: "3-Bedroom House, Gulu",
-    location: "Laroo Division, Gulu City", locationKey: "gulu",
-    price: 500000, priceLabel: "UGX 500,000", priceNote: "per month",
-    features: ["3 Bedrooms","Borehole water","Parking"],
-    featureIcons: ["ti-bed","ti-droplet","ti-car"],
-    description: "Spacious 3-bedroom house with borehole water and ample parking in Gulu.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 8, type: "rent",
-    title: "Self-Contained Room, Kampala",
-    location: "Ntinda, Kampala", locationKey: "kampala",
-    price: 250000, priceLabel: "UGX 250,000", priceNote: "per month",
-    features: ["Self-contained","Water & power","Secure"],
-    featureIcons: ["ti-home","ti-bolt","ti-lock"],
-    description: "Modern self-contained single room in Ntinda, Kampala. Security guard on site.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 9, type: "rent",
-    title: "2-Bedroom Apartment, Mbarara",
-    location: "Rutooma, Mbarara", locationKey: "mbarara",
-    price: 450000, priceLabel: "UGX 450,000", priceNote: "per month",
-    features: ["2 Bedrooms","Tiled floors","Secure compound"],
-    featureIcons: ["ti-bed","ti-square","ti-lock"],
-    description: "Modern 2-bedroom apartment in Mbarara City. Tiled floors and secure compound.",
-    photos: [], available: true, featured: true
-  },
-  {
-    id: 10, type: "rent",
-    title: "4-Bedroom House, Entebbe",
-    location: "Entebbe Municipality", locationKey: "entebbe",
-    price: 1200000, priceLabel: "UGX 1,200,000", priceNote: "per month",
-    features: ["4 Bedrooms","2 Bathrooms","Lake view"],
-    featureIcons: ["ti-bed","ti-bath","ti-ripple"],
-    description: "Spacious 4-bedroom house near Entebbe airport with partial lake view.",
-    photos: [], available: true, featured: false
-  },
-  {
-    id: 11, type: "rent",
-    title: "Studio Apartment, Jinja",
-    location: "Jinja City Centre", locationKey: "jinja",
-    price: 200000, priceLabel: "UGX 200,000", priceNote: "per month",
-    features: ["Studio","Furnished","24hr power"],
-    featureIcons: ["ti-home","ti-sofa","ti-bolt"],
-    description: "Cosy furnished studio apartment in Jinja. 24-hour electricity supply.",
-    photos: [], available: true, featured: false
-  },
-  {
-    id: 12, type: "rent",
-    title: "3-Bedroom Bungalow, Mbale",
-    location: "Industrial Division, Mbale", locationKey: "mbale",
-    price: 380000, priceLabel: "UGX 380,000", priceNote: "per month",
-    features: ["3 Bedrooms","Solar backup","Compound"],
-    featureIcons: ["ti-bed","ti-solar-panel","ti-fence"],
-    description: "Modern bungalow with solar backup in Mbale City. Quiet compound.",
-    photos: [], available: true, featured: false
-  }
+  { id:1,  type:"land", title:"50×100ft Plot, Layibi",        location:"Layibi Division, Gulu City",    locationKey:"gulu",      price:45000000,  priceLabel:"UGX 45,000,000",  priceNote:"Negotiable",       features:["50×100ft","Titled","Near Road"],          featureIcons:["ti-ruler","ti-certificate","ti-road"],           description:"Prime plot in Layibi Division, Gulu City. Title deed ready. Near tarmac road.",                                photos:[], available:true, featured:true  },
+  { id:2,  type:"land", title:"1 Acre Plot, Pece Division",   location:"Pece, Gulu District",           locationKey:"gulu",      price:120000000, priceLabel:"UGX 120,000,000", priceNote:"Firm price",       features:["1 Acre","Mailo Title","Flat land"],       featureIcons:["ti-ruler","ti-certificate","ti-mountain"],       description:"Large flat acre in Pece Division. Mailo land title. Suitable for development.",                               photos:[], available:true, featured:true  },
+  { id:3,  type:"land", title:"Prime Commercial Plot, Gulu",  location:"Along Kampala Road, Gulu",      locationKey:"gulu",      price:80000000,  priceLabel:"UGX 80,000,000",  priceNote:"Negotiable",       features:["60×100ft","Freehold","Commercial zone"],  featureIcons:["ti-ruler","ti-certificate","ti-building-store"], description:"Commercial plot along Kampala Road, Gulu. High visibility. Freehold title.",                                  photos:[], available:true, featured:true  },
+  { id:4,  type:"land", title:"2-Acre Plot, Mbarara",         location:"Kakoba Division, Mbarara",      locationKey:"mbarara",   price:180000000, priceLabel:"UGX 180,000,000", priceNote:"Negotiable",       features:["2 Acres","Mailo Title","Near highway"],   featureIcons:["ti-ruler","ti-certificate","ti-road"],           description:"Large 2-acre plot in Mbarara City near the main highway. Ideal for commercial use.",                          photos:[], available:true, featured:false },
+  { id:5,  type:"land", title:"Residential Plot, Kireka",     location:"Kireka, Wakiso District",       locationKey:"wakiso",    price:95000000,  priceLabel:"UGX 95,000,000",  priceNote:"Firm price",       features:["50×100ft","Freehold","Tarmac access"],    featureIcons:["ti-ruler","ti-certificate","ti-road"],           description:"Well-located plot in Kireka with tarmac road access. Freehold title.",                                       photos:[], available:true, featured:false },
+  { id:6,  type:"land", title:"Plot for Sale, Jinja City",    location:"Walukuba, Jinja",               locationKey:"jinja",     price:60000000,  priceLabel:"UGX 60,000,000",  priceNote:"Negotiable",       features:["50×100ft","Titled","Near lake"],           featureIcons:["ti-ruler","ti-certificate","ti-ripple"],         description:"Plot near the Nile in Jinja City. Suitable for residential or hospitality use.",                              photos:[], available:true, featured:false },
+  { id:7,  type:"rent", title:"3-Bedroom House, Gulu",        location:"Laroo Division, Gulu City",     locationKey:"gulu",      price:500000,    priceLabel:"UGX 500,000",     priceNote:"per month",        features:["3 Bedrooms","Borehole water","Parking"],  featureIcons:["ti-bed","ti-droplet","ti-car"],                  description:"Spacious 3-bedroom house with borehole water and ample parking in Gulu.",                                     photos:[], available:true, featured:true  },
+  { id:8,  type:"rent", title:"Self-Contained Room, Kampala", location:"Ntinda, Kampala",               locationKey:"kampala",   price:250000,    priceLabel:"UGX 250,000",     priceNote:"per month",        features:["Self-contained","Water & power","Secure"], featureIcons:["ti-home","ti-bolt","ti-lock"],                   description:"Modern self-contained single room in Ntinda, Kampala. Security guard on site.",                               photos:[], available:true, featured:true  },
+  { id:9,  type:"rent", title:"2-Bedroom Apartment, Mbarara", location:"Rutooma, Mbarara",              locationKey:"mbarara",   price:450000,    priceLabel:"UGX 450,000",     priceNote:"per month",        features:["2 Bedrooms","Tiled floors","Secure compound"], featureIcons:["ti-bed","ti-square","ti-lock"],               description:"Modern 2-bedroom apartment in Mbarara City. Tiled floors and secure compound.",                               photos:[], available:true, featured:true  },
+  { id:10, type:"rent", title:"4-Bedroom House, Entebbe",     location:"Entebbe Municipality",          locationKey:"entebbe",   price:1200000,   priceLabel:"UGX 1,200,000",   priceNote:"per month",        features:["4 Bedrooms","2 Bathrooms","Lake view"],   featureIcons:["ti-bed","ti-bath","ti-ripple"],                  description:"Spacious 4-bedroom house near Entebbe airport with partial lake view.",                                       photos:[], available:true, featured:false },
+  { id:11, type:"rent", title:"Studio Apartment, Jinja",      location:"Jinja City Centre",             locationKey:"jinja",     price:200000,    priceLabel:"UGX 200,000",     priceNote:"per month",        features:["Studio","Furnished","24hr power"],         featureIcons:["ti-home","ti-sofa","ti-bolt"],                   description:"Cosy furnished studio apartment in Jinja. 24-hour electricity supply.",                                       photos:[], available:true, featured:false },
+  { id:12, type:"rent", title:"3-Bedroom Bungalow, Mbale",    location:"Industrial Division, Mbale",    locationKey:"mbale",     price:380000,    priceLabel:"UGX 380,000",     priceNote:"per month",        features:["3 Bedrooms","Solar backup","Compound"],   featureIcons:["ti-bed","ti-solar-panel","ti-fence"],            description:"Modern bungalow with solar backup in Mbale City. Quiet compound.",                                            photos:[], available:true, featured:false },
 ];
 
 /* ============================================================
@@ -222,54 +108,45 @@ function getListings() {
   } catch { return DEFAULT_LISTINGS; }
 }
 function saveListings(data) {
-  localStorage.setItem("pp_listings", JSON.stringify(data));
+  try { localStorage.setItem("pp_listings", JSON.stringify(data)); } catch(e) { console.warn("saveListings:", e); }
 }
 
 /* ============================================================
-   3. CART — toggle add/remove (fix #2)
+   3. CART — FIX #1 (heart toggle)
    ============================================================ */
 function getCart() {
-  try { return JSON.parse(localStorage.getItem("pp_cart")) || []; }
-  catch { return []; }
+  try { return JSON.parse(localStorage.getItem("pp_cart")) || []; } catch { return []; }
 }
 function saveCart(cart) {
-  localStorage.setItem("pp_cart", JSON.stringify(cart));
+  try { localStorage.setItem("pp_cart", JSON.stringify(cart)); } catch(e) { console.warn("saveCart:", e); }
   updateCartBadge();
 }
 
-/* Heart toggle: first click = add, second click = remove (fix #2) */
+/* Heart toggle: click once = add (purple heart), click again = remove (fix #1) */
 function toggleCart(id) {
   const listings = getListings();
-  const item     = listings.find(l => l.id === id);
+  const item     = listings.find(l => l.id === Number(id));
   if (!item) return;
 
   let cart   = getCart();
-  const idx  = cart.findIndex(c => c.id === id);
+  const idx  = cart.findIndex(c => Number(c.id) === Number(id));
   const inCart = idx > -1;
 
   if (inCart) {
-    /* Remove */
     cart.splice(idx, 1);
     saveCart(cart);
     showToast(`"${item.title}" removed from enquiry list.`);
-    setSaveBtn(id, false);
+    _updateHearts(id, false);
   } else {
-    /* Add */
-    cart.push({
-      id:        item.id,
-      title:     item.title,
-      price:     item.priceLabel,
-      type:      item.type,
-      photo:     (item.photos && item.photos[0]) || ""
-    });
+    cart.push({ id: item.id, title: item.title, price: item.priceLabel, type: item.type, photo: (item.photos && item.photos[0]) || "" });
     saveCart(cart);
     showToast(`"${item.title}" added to enquiry list!`);
-    setSaveBtn(id, true);
+    _updateHearts(id, true);
   }
 }
 
-/* Update all heart buttons for a given listing id */
-function setSaveBtn(id, inCart) {
+/* Update ALL heart buttons for a listing id */
+function _updateHearts(id, inCart) {
   document.querySelectorAll(`.prop-card__save[data-id="${id}"]`).forEach(btn => {
     btn.classList.toggle("saved", inCart);
     btn.innerHTML = inCart
@@ -279,52 +156,307 @@ function setSaveBtn(id, inCart) {
   });
 }
 
-function isInCart(id) {
-  return getCart().some(c => c.id === id);
-}
+function isInCart(id) { return getCart().some(c => Number(c.id) === Number(id)); }
 
 function updateCartBadge() {
-  document.querySelectorAll("#cartBadge").forEach(badge => {
-    const count = getCart().length;
-    badge.textContent  = count;
-    badge.style.display = count > 0 ? "flex" : "none";
+  const count = getCart().length;
+  document.querySelectorAll("#cartBadge").forEach(b => {
+    b.textContent   = count;
+    b.style.display = count > 0 ? "flex" : "none";
   });
 }
 
+function removeFromCart(id) {
+  saveCart(getCart().filter(c => Number(c.id) !== Number(id)));
+  _updateHearts(id, false);
+}
+
 /* ============================================================
-   4. RENDER PROPERTY CARDS
+   4. PROPERTY DETAIL MODAL (fix #3)
+      Opens when "Enquire" is clicked — shows full details
+      + a form that submits to Netlify AND saves locally
+   ============================================================ */
+function openDetailModal(id) {
+  const listings = getListings();
+  const item     = listings.find(l => l.id === Number(id));
+  if (!item) return;
+
+  /* Remove any existing modal */
+  document.getElementById("propDetailModal")?.remove();
+
+  const photos = item.photos && item.photos.length > 0;
+  const featuresHTML = item.features.map((f, i) =>
+    `<span style="display:inline-flex;align-items:center;gap:5px;font-size:.85rem;
+      background:var(--purple-pale);border:1px solid rgba(91,14,166,.15);
+      border-radius:100px;padding:3px 10px;color:var(--text-mid)">
+      <i class="ti ${item.featureIcons[i] || 'ti-check'}" style="color:var(--purple)"></i>${f}
+    </span>`
+  ).join("");
+
+  const photoHTML = photos
+    ? `<div style="height:240px;border-radius:var(--radius-md);overflow:hidden;margin-bottom:1.25rem;position:relative">
+        ${item.photos.map((src, i) =>
+          `<div style="position:absolute;inset:0;background:url('${src}') center/cover;
+            opacity:${i === 0 ? 1 : 0};transition:opacity .5s ease" data-slide="${i}"></div>`
+        ).join("")}
+        ${item.photos.length > 1 ? `
+        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+          display:flex;gap:5px;z-index:2">
+          ${item.photos.map((_, i) =>
+            `<button onclick="slidePhoto(${i})"
+              style="width:8px;height:8px;border-radius:50%;border:none;cursor:pointer;
+              background:${i === 0 ? '#fff' : 'rgba(255,255,255,.45)'}" data-dot="${i}"></button>`
+          ).join("")}
+        </div>` : ""}
+      </div>`
+    : `<div style="height:180px;border-radius:var(--radius-md);
+        background:linear-gradient(135deg,var(--purple-pale),var(--silver-light));
+        display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;
+        border:1px solid var(--silver-light)">
+        <i class="ti ${item.type === 'land' ? 'ti-map-pin' : 'ti-building'}"
+          style="font-size:3rem;color:var(--purple-light);opacity:.35"></i>
+      </div>`;
+
+  const modal = document.createElement("div");
+  modal.id    = "propDetailModal";
+  modal.style.cssText = `
+    position:fixed;inset:0;z-index:9000;
+    background:rgba(10,7,18,.75);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;padding:1rem;
+    animation:fadeInModal .2s ease;
+  `;
+
+  modal.innerHTML = `
+    <style>
+      @keyframes fadeInModal { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+      .modal-inner { background:var(--white);border-radius:var(--radius-lg);
+        max-width:680px;width:100%;max-height:90vh;overflow-y:auto;
+        box-shadow:0 24px 80px rgba(0,0,0,.35);position:relative; }
+      .modal-close { position:absolute;top:1rem;right:1rem;background:var(--off-white);
+        border:1px solid var(--silver-light);border-radius:50%;width:34px;height:34px;
+        display:flex;align-items:center;justify-content:center;cursor:pointer;
+        font-size:1rem;color:var(--text-mid);transition:all .2s ease;z-index:2; }
+      .modal-close:hover { background:var(--red-bg);color:var(--red-tag);border-color:var(--red-tag); }
+    </style>
+    <div class="modal-inner">
+      <button class="modal-close" onclick="closeDetailModal()" title="Close">
+        <i class="ti ti-x"></i>
+      </button>
+
+      <div style="padding:2rem 2rem 0">
+        ${photoHTML}
+
+        <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem">
+          <span class="prop-card__badge prop-card__badge--${item.type}"
+            style="position:static;font-size:.7rem;display:inline-block">
+            ${item.type === "land" ? "For Sale" : "For Rent"}
+          </span>
+          ${!item.available
+            ? `<span style="background:var(--red-bg);color:var(--red-tag);font-size:.7rem;
+                font-weight:600;padding:2px 10px;border-radius:100px;text-transform:uppercase">
+                Taken / Sold</span>`
+            : `<span style="background:var(--green-bg);color:var(--green-tag);font-size:.7rem;
+                font-weight:600;padding:2px 10px;border-radius:100px;text-transform:uppercase">
+                Available</span>`}
+        </div>
+
+        <h2 style="font-family:var(--font-serif);font-size:1.6rem;font-weight:700;
+          color:var(--text-primary);margin-bottom:.4rem">${item.title}</h2>
+
+        <div style="display:flex;align-items:center;gap:5px;font-size:.85rem;
+          color:var(--text-muted);margin-bottom:1rem">
+          <i class="ti ti-map-pin" style="color:var(--purple-light)"></i>${item.location}
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem">
+          ${featuresHTML}
+        </div>
+
+        ${item.description
+          ? `<p style="font-size:.92rem;color:var(--text-mid);line-height:1.75;margin-bottom:1.25rem">
+              ${item.description}</p>`
+          : ""}
+
+        <div style="background:var(--purple-pale);border:1px solid rgba(91,14,166,.15);
+          border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.5rem;
+          display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;
+              letter-spacing:.08em;margin-bottom:3px">Price</div>
+            <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:700;
+              color:var(--text-primary)">${item.priceLabel}</div>
+            <div style="font-size:.75rem;color:var(--text-muted)">${item.priceNote}</div>
+          </div>
+          <button onclick="toggleCart(${item.id})"
+            id="modalHeartBtn_${item.id}"
+            style="display:flex;align-items:center;gap:6px;background:${isInCart(item.id) ? 'var(--purple)' : 'var(--white)'};
+              color:${isInCart(item.id) ? '#fff' : 'var(--purple)'};
+              border:2px solid var(--purple);border-radius:var(--radius-sm);
+              padding:.5rem 1.1rem;font-size:.85rem;font-weight:500;cursor:pointer;
+              font-family:var(--font-sans);transition:all .25s ease">
+            <i class="ti ti-heart${isInCart(item.id) ? '-filled' : ''}"></i>
+            ${isInCart(item.id) ? "Saved" : "Save Property"}
+          </button>
+        </div>
+      </div>
+
+      <!-- Enquiry form — fix #3 + fix #4 -->
+      <div style="padding:0 2rem 2rem">
+        <h3 style="font-family:var(--font-serif);font-size:1.15rem;font-weight:700;
+          color:var(--text-primary);margin-bottom:1.25rem;padding-bottom:.85rem;
+          border-top:1px solid var(--silver-light);padding-top:1.25rem">
+          Send an Enquiry About This Property
+        </h3>
+
+        <form id="modalEnquiryForm"
+          name="property-enquiry"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name"          value="property-enquiry" />
+          <input type="hidden" name="property_title"     value="${item.title}" />
+          <input type="hidden" name="property_location"  value="${item.location}" />
+          <input type="hidden" name="property_price"     value="${item.priceLabel}" />
+          <input type="hidden" name="property_type"      value="${item.type === 'land' ? 'For Sale' : 'For Rent'}" />
+          <p style="display:none"><label>Skip: <input name="bot-field" /></label></p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div class="form-group">
+              <label for="meq-name">Your Name <span class="req">*</span></label>
+              <input type="text" id="meq-name" name="name"
+                placeholder="Full name" required />
+            </div>
+            <div class="form-group">
+              <label for="meq-phone">Phone / WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="meq-phone" name="phone"
+                placeholder="+256 7XX XXX XXX" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="meq-email">Email Address</label>
+            <input type="email" id="meq-email" name="email"
+              placeholder="your@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="meq-message">Message <span class="req">*</span></label>
+            <textarea id="meq-message" name="message" rows="3"
+              placeholder="Ask about this property — viewing, title documents, payment terms…"
+              required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full" id="modalEnquiryBtn">
+            <i class="ti ti-send"></i> Send Enquiry
+          </button>
+          <div class="form-status" id="modalEnquiryStatus" style="margin-top:.75rem"></div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  /* Close on backdrop click */
+  modal.addEventListener("click", e => { if (e.target === modal) closeDetailModal(); });
+
+  /* Form submit — Netlify + local inbox */
+  const form = document.getElementById("modalEnquiryForm");
+  form?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn    = document.getElementById("modalEnquiryBtn");
+    const status = document.getElementById("modalEnquiryStatus");
+    const name   = document.getElementById("meq-name").value.trim();
+    const phone  = document.getElementById("meq-phone").value.trim();
+    const email  = document.getElementById("meq-email").value.trim();
+    const msg    = document.getElementById("meq-message").value.trim();
+
+    if (!name || !phone || !msg) {
+      status.textContent = "Please fill in all required fields.";
+      status.className   = "form-status error";
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Sending…'; }
+
+    try {
+      const body = new URLSearchParams(new FormData(form)).toString();
+      await fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body });
+
+      /* Save to local inbox so admin sees it on THIS browser too */
+      saveMessage({
+        from:    name,
+        phone,
+        email,
+        subject: `Enquiry: ${item.title}`,
+        body:    `Property: ${item.title}\nLocation: ${item.location}\nPrice: ${item.priceLabel}\n\nMessage:\n${msg}`,
+        type:    "property-enquiry"
+      });
+
+      form.reset();
+      status.textContent = "✓ Enquiry sent! Our team will contact you shortly.";
+      status.className   = "form-status success";
+      showToast("Enquiry sent successfully!");
+
+    } catch {
+      status.textContent = "Something went wrong. Please call or WhatsApp us directly.";
+      status.className   = "form-status error";
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-send"></i> Send Enquiry'; }
+    }
+  });
+
+  /* Photo slideshow */
+  window.slidePhoto = function(idx) {
+    modal.querySelectorAll("[data-slide]").forEach((el, i) => {
+      el.style.opacity = i === idx ? "1" : "0";
+    });
+    modal.querySelectorAll("[data-dot]").forEach((el, i) => {
+      el.style.background = i === idx ? "#fff" : "rgba(255,255,255,.45)";
+    });
+  };
+
+  /* Prevent body scroll */
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetailModal() {
+  document.getElementById("propDetailModal")?.remove();
+  document.body.style.overflow = "";
+}
+
+/* ============================================================
+   5. RENDER PROPERTY CARDS
    ============================================================ */
 function createCard(listing) {
   const inCart   = isInCart(listing.id);
   const features = listing.features.map((f, i) =>
-    `<span class="prop-card__feat"><i class="ti ${listing.featureIcons[i] || "ti-check"}"></i>${f}</span>`
+    `<span class="prop-card__feat">
+      <i class="ti ${listing.featureIcons[i] || 'ti-check'}"></i>${f}
+    </span>`
   ).join("");
 
-  /* Photo slides */
-  const photos  = listing.photos && listing.photos.length > 0 ? listing.photos : [];
+  const photos   = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasPhoto = photos.length > 0;
 
   const photoSlides = hasPhoto
     ? photos.map((src, i) =>
         `<div class="prop-card__photo${i === 0 ? " active" : ""}"
-              style="background-image:url('${src}')"
-              data-idx="${i}"></div>`
-      ).join("")
-    : "";
+          style="background-image:url('${src}')" data-idx="${i}"></div>`
+      ).join("") : "";
 
   const photoDots = hasPhoto && photos.length > 1
     ? `<div class="prop-card__photo-dots">
         ${photos.map((_, i) =>
           `<button class="prop-card__photo-dot${i === 0 ? " active" : ""}"
-                   data-dot="${i}" aria-label="Photo ${i+1}"></button>`
+            data-dot="${i}"></button>`
         ).join("")}
-       </div>`
-    : "";
+      </div>` : "";
 
-  /* Taken overlay (fix #9) */
   const takenOverlay = !listing.available
-    ? `<div class="prop-card__taken"><span class="prop-card__taken-label">Taken / Sold</span></div>`
-    : "";
+    ? `<div class="prop-card__taken">
+        <span class="prop-card__taken-label">Taken / Sold</span>
+      </div>` : "";
 
   return `
     <div class="prop-card fade-in" data-id="${listing.id}">
@@ -339,8 +471,7 @@ function createCard(listing) {
           class="prop-card__save${inCart ? " saved" : ""}"
           data-id="${listing.id}"
           onclick="toggleCart(${listing.id})"
-          title="${inCart ? "Remove from enquiry list" : "Add to enquiry list"}"
-          aria-label="Toggle enquiry">
+          title="${inCart ? "Remove from enquiry list" : "Add to enquiry list"}">
           ${inCart
             ? '<i class="ti ti-heart-filled" style="color:var(--purple)"></i>'
             : '<i class="ti ti-heart"></i>'}
@@ -349,44 +480,30 @@ function createCard(listing) {
       </div>
       <div class="prop-card__body">
         <div class="prop-card__title">${listing.title}</div>
-        <div class="prop-card__loc"><i class="ti ti-map-pin"></i>${listing.location}</div>
+        <div class="prop-card__loc">
+          <i class="ti ti-map-pin"></i>${listing.location}
+        </div>
         <div class="prop-card__features">${features}</div>
         <div class="prop-card__footer">
           <div class="prop-card__price">
             ${listing.priceLabel}
             <span>${listing.priceNote}</span>
           </div>
-          <!-- Enquire → goes to cart (fix #3) -->
-          <a class="prop-card__cta" href="cart.html" onclick="addToCartThenGo(${listing.id}, event)">
-            <i class="ti ti-shopping-cart"></i> Enquire
-          </a>
+          <!-- Enquire → opens detail modal (fix #3) -->
+          <button class="prop-card__cta" onclick="openDetailModal(${listing.id})">
+            <i class="ti ti-info-circle"></i> Details
+          </button>
         </div>
       </div>
     </div>`;
 }
 
-/* Enquire: add to cart (if not already) then navigate to cart (fix #3) */
-function addToCartThenGo(id, e) {
-  if (!isInCart(id)) {
-    const listings = getListings();
-    const item     = listings.find(l => l.id === id);
-    if (item) {
-      let cart = getCart();
-      cart.push({ id: item.id, title: item.title, price: item.priceLabel, type: item.type, photo: (item.photos && item.photos[0]) || "" });
-      saveCart(cart);
-      setSaveBtn(id, true);
-    }
-  }
-  /* Let the <a href="cart.html"> navigate normally */
-}
-
-/* Photo slideshow inside cards */
+/* Photo slideshow init */
 function initCardSlideshows() {
   document.querySelectorAll(".prop-card").forEach(card => {
     const dots   = card.querySelectorAll(".prop-card__photo-dot");
     const photos = card.querySelectorAll(".prop-card__photo");
     if (!dots.length) return;
-
     dots.forEach(dot => {
       dot.addEventListener("click", e => {
         e.stopPropagation();
@@ -395,8 +512,6 @@ function initCardSlideshows() {
         dots.forEach((d, i) => d.classList.toggle("active", i === idx));
       });
     });
-
-    /* Auto-rotate if multiple photos */
     if (photos.length > 1) {
       let cur = 0;
       setInterval(() => {
@@ -409,31 +524,30 @@ function initCardSlideshows() {
 }
 
 /* ============================================================
-   5. RENDER — Home featured
+   6. RENDER — Home featured listings
    ============================================================ */
 function renderHomeListings() {
   const listings = getListings();
   const landGrid = document.getElementById("landGrid");
   const rentGrid = document.getElementById("rentGrid");
-
   if (landGrid) {
     const items = listings.filter(l => l.type === "land" && l.featured).slice(0, 3);
     landGrid.innerHTML = items.length
       ? items.map(createCard).join("")
-      : '<p style="color:var(--text-muted);padding:2rem 0">No featured land listings at the moment.</p>';
+      : `<p style="color:var(--text-muted);padding:2rem 0">No featured land listings at the moment.</p>`;
   }
   if (rentGrid) {
     const items = listings.filter(l => l.type === "rent" && l.featured).slice(0, 3);
     rentGrid.innerHTML = items.length
       ? items.map(createCard).join("")
-      : '<p style="color:var(--text-muted);padding:2rem 0">No featured rental listings at the moment.</p>';
+      : `<p style="color:var(--text-muted);padding:2rem 0">No featured rental listings at the moment.</p>`;
   }
   observeFadeIns();
   initCardSlideshows();
 }
 
 /* ============================================================
-   6. RENDER — Properties page
+   7. RENDER — Properties page
    ============================================================ */
 function renderPropertyPage(results) {
   const grid    = document.getElementById("allPropertiesGrid");
@@ -449,24 +563,19 @@ function renderPropertyPage(results) {
 }
 
 /* ============================================================
-   7. SEARCH & FILTER
+   8. SEARCH & FILTER
    ============================================================ */
 function handleSearch(e) {
   if (e) e.preventDefault();
   const query      = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
   const typeFilter = document.getElementById("searchType")?.value    || "all";
   const locFilter  = document.getElementById("searchLocation")?.value || "all";
-
-  const results = getListings().filter(l => {
+  const results    = getListings().filter(l => {
     const matchType = typeFilter === "all" || l.type === typeFilter;
     const matchLoc  = locFilter  === "all" || l.locationKey === locFilter;
-    const matchQ    = !query ||
-      l.title.toLowerCase().includes(query) ||
-      l.location.toLowerCase().includes(query) ||
-      l.features.some(f => f.toLowerCase().includes(query));
+    const matchQ    = !query || l.title.toLowerCase().includes(query) || l.location.toLowerCase().includes(query) || l.features.some(f => f.toLowerCase().includes(query));
     return matchType && matchLoc && matchQ;
   });
-
   if (window.location.pathname.includes("properties")) {
     renderPropertyPage(results);
   } else {
@@ -481,16 +590,13 @@ function handleSearch(e) {
 function initPropertyFilters() {
   const grid = document.getElementById("allPropertiesGrid");
   if (!grid) return;
-
   const params  = new URLSearchParams(window.location.search);
   const qParam  = params.get("q")    || "";
   const tParam  = params.get("type") || "all";
   const lParam  = params.get("loc")  || "all";
-
   if (document.getElementById("searchInput"))    document.getElementById("searchInput").value    = qParam;
   if (document.getElementById("searchType"))     document.getElementById("searchType").value     = tParam;
   if (document.getElementById("searchLocation")) document.getElementById("searchLocation").value = lParam;
-
   document.querySelectorAll(".filter-btn[data-type]").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.type === tParam);
     btn.addEventListener("click", () => {
@@ -501,7 +607,6 @@ function initPropertyFilters() {
       handleSearch(null);
     });
   });
-
   const locSelect = document.getElementById("filterLocation");
   if (locSelect) {
     if (lParam) locSelect.value = lParam;
@@ -511,7 +616,6 @@ function initPropertyFilters() {
       handleSearch(null);
     });
   }
-
   handleSearch(null);
 }
 
@@ -526,21 +630,18 @@ function initHeroTags() {
 }
 
 /* ============================================================
-   8. NAVBAR — active link (fix #1), scroll, hamburger
+   9. NAVBAR — active link (fix #5), scroll, hamburger
    ============================================================ */
 function initNavbar() {
   const navbar    = document.getElementById("navbar");
   const hamburger = document.getElementById("hamburger");
   const navLinks  = document.getElementById("navLinks");
 
-  /* Scroll effect */
   window.addEventListener("scroll", () => {
     if (navbar) navbar.classList.toggle("scrolled", window.scrollY > 40);
-    const btt = document.getElementById("backToTop");
-    if (btt) btt.classList.toggle("visible", window.scrollY > 400);
+    document.getElementById("backToTop")?.classList.toggle("visible", window.scrollY > 400);
   }, { passive: true });
 
-  /* Hamburger */
   if (hamburger && navLinks) {
     hamburger.addEventListener("click", () => {
       hamburger.classList.toggle("open");
@@ -554,28 +655,31 @@ function initNavbar() {
     });
   }
 
-  /* Active link — match current page filename (fix #1) */
-  const page = window.location.pathname.split("/").pop() || "index.html";
+  /* Active link — fix #5: robust filename matching */
+  const raw  = window.location.pathname;
+  const page = raw.split("/").pop() || "index.html";
+  /* Normalise: empty string or "/" = home */
+  const current = page === "" || page === "/" ? "index.html" : page;
+
   document.querySelectorAll(".nav-link").forEach(link => {
-    const href = link.getAttribute("href")?.split("?")[0]; /* ignore query */
-    const match = href === page
-      || (page === "" && href === "index.html")
-      || (page === "index.html" && href === "index.html");
+    /* Strip query string from href */
+    const href = (link.getAttribute("href") || "").split("?")[0].split("#")[0];
+    const match = href === current
+      || (current === "index.html" && (href === "index.html" || href === "./index.html" || href === "./" || href === ""));
     link.classList.toggle("active", match);
   });
 }
 
 /* ============================================================
-   9. COUNTERS
+   10. COUNTERS
    ============================================================ */
 function animateCounter(el, target, duration = 1800) {
   let start = null;
   const step = ts => {
     if (!start) start = ts;
-    const progress = Math.min((ts - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
+    const ease = 1 - Math.pow(1 - Math.min((ts - start) / duration, 1), 3);
     el.textContent = Math.floor(ease * target);
-    if (progress < 1) requestAnimationFrame(step);
+    if (ease < 1) requestAnimationFrame(step);
     else el.textContent = target;
   };
   requestAnimationFrame(step);
@@ -587,9 +691,9 @@ function initCounters() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         document.querySelectorAll(".stats__item[data-count]").forEach(item => {
-          const counterEl = item.querySelector(".counter");
-          const target    = parseInt(item.dataset.count, 10);
-          if (counterEl && target) animateCounter(counterEl, target);
+          const el  = item.querySelector(".counter");
+          const tgt = parseInt(item.dataset.count, 10);
+          if (el && tgt) animateCounter(el, tgt);
         });
         observer.disconnect();
       }
@@ -599,51 +703,41 @@ function initCounters() {
 }
 
 /* ============================================================
-   10. FADE-IN
+   11. FADE-IN ON SCROLL
    ============================================================ */
 function observeFadeIns() {
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        observer.unobserve(entry.target);
-      }
+      if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
     });
   }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
   document.querySelectorAll(".fade-in:not(.visible)").forEach(el => observer.observe(el));
 }
 
 /* ============================================================
-   11. INBOX — store messages from forms (fix #11)
+   12. MESSAGES — fix #4
+   Messages are saved locally AND submitted to Netlify.
+   Netlify emails the admin reliably from any device/browser.
+   Local inbox shows messages submitted on the admin's browser.
    ============================================================ */
 function getMessages() {
-  try { return JSON.parse(localStorage.getItem("pp_messages")) || []; }
-  catch { return []; }
+  try { return JSON.parse(localStorage.getItem("pp_messages")) || []; } catch { return []; }
 }
 function saveMessage(data) {
   const messages = getMessages();
-  messages.unshift({
-    id:      Date.now(),
-    unread:  true,
-    time:    new Date().toLocaleString("en-UG"),
-    ...data
-  });
-  localStorage.setItem("pp_messages", JSON.stringify(messages));
+  messages.unshift({ id: Date.now(), unread: true, time: new Date().toLocaleString("en-UG"), ...data });
+  try { localStorage.setItem("pp_messages", JSON.stringify(messages)); } catch(e) {}
 }
 function markAllRead() {
-  const messages = getMessages().map(m => ({ ...m, unread: false }));
-  localStorage.setItem("pp_messages", JSON.stringify(messages));
+  try { localStorage.setItem("pp_messages", JSON.stringify(getMessages().map(m => ({ ...m, unread: false })))); } catch(e) {}
 }
 function deleteMessage(id) {
-  const messages = getMessages().filter(m => m.id !== id);
-  localStorage.setItem("pp_messages", JSON.stringify(messages));
+  try { localStorage.setItem("pp_messages", JSON.stringify(getMessages().filter(m => m.id !== id))); } catch(e) {}
 }
-function getUnreadCount() {
-  return getMessages().filter(m => m.unread).length;
-}
+function getUnreadCount() { return getMessages().filter(m => m.unread).length; }
 
 /* ============================================================
-   12. CONTACT FORM — Netlify + save to inbox (fix #11)
+   13. CONTACT FORM — fix #4 (Netlify is the reliable channel)
    ============================================================ */
 function initContactForm() {
   const form      = document.getElementById("contactForm");
@@ -658,6 +752,7 @@ function initContactForm() {
     const msg     = form.querySelector('[name="message"]')?.value.trim();
     const email   = form.querySelector('[name="email"]')?.value.trim() || "";
     const interest= form.querySelector('[name="interest"]')?.value || "";
+    const subject = form.querySelector('[name="subject"]')?.value.trim() || "";
 
     if (!name || !phone || !msg) {
       if (status) { status.textContent = "Please fill in all required fields."; status.className = "form-status error"; }
@@ -667,21 +762,19 @@ function initContactForm() {
 
     try {
       const body = new URLSearchParams(new FormData(form)).toString();
-      const res  = await fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body });
-      if (res.ok || true) { /* store locally regardless of Netlify status */
-        /* Save to inbox */
-        saveMessage({
-          from:     name,
-          phone,
-          email,
-          subject:  interest ? `Interested in: ${interest}` : "General Contact",
-          body:     msg,
-          type:     "contact"
-        });
-        form.reset();
-        if (status) { status.textContent = "✓ Message sent! We'll be in touch shortly."; status.className = "form-status success"; }
-        showToast("Message sent successfully!");
-      }
+      await fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body });
+      /* Also save locally so admin sees it on their browser */
+      saveMessage({
+        from:    name,
+        phone,
+        email,
+        subject: subject || (interest ? `Interest: ${interest}` : "Contact Form"),
+        body:    msg,
+        type:    "contact"
+      });
+      form.reset();
+      if (status) { status.textContent = "✓ Message sent! We'll be in touch shortly."; status.className = "form-status success"; }
+      showToast("Message sent successfully!");
     } catch {
       if (status) { status.textContent = "Something went wrong. Please call or WhatsApp us directly."; status.className = "form-status error"; }
     } finally {
@@ -691,24 +784,22 @@ function initContactForm() {
 }
 
 /* ============================================================
-   13. TESTIMONIES — star picker + review form
+   14. TESTIMONIES — star picker + review form
    ============================================================ */
 function initStarPicker() {
   const picker = document.querySelector(".star-picker");
   const input  = document.getElementById("ratingInput");
   if (!picker || !input) return;
-  const stars = picker.querySelectorAll("span");
-  let selected = 5;
-  input.value = selected;
-  const ratingText = document.getElementById("starRatingText");
+  const stars  = picker.querySelectorAll("span");
+  const rText  = document.getElementById("starRatingText");
   const labels = ["","Poor","Fair","Good","Very Good","Excellent"];
-
-  function set(count) {
-    stars.forEach((s, i) => s.classList.toggle("active", i < count));
-    if (ratingText) ratingText.textContent = `${count} out of 5 — ${labels[count]}`;
+  let selected = 5;
+  input.value  = selected;
+  function set(n) {
+    stars.forEach((s, i) => s.classList.toggle("active", i < n));
+    if (rText) rText.textContent = `${n} out of 5 — ${labels[n]}`;
   }
   set(selected);
-
   stars.forEach((star, i) => {
     star.addEventListener("mouseenter", () => set(i + 1));
     star.addEventListener("click",      () => { selected = i + 1; input.value = selected; set(selected); });
@@ -745,26 +836,26 @@ function initReviewForm() {
 }
 
 /* ============================================================
-   14. CART PAGE
+   15. CART PAGE
    ============================================================ */
 function renderCartPage() {
-  const itemsEl   = document.getElementById("cartItems");
-  const emptyEl   = document.getElementById("cartEmpty");
-  const summaryEl = document.getElementById("cartSummary");
-  const countEl   = document.getElementById("cartItemCount");
-  const countTotal= document.getElementById("cartItemCountTotal");
-  const helpNote  = document.getElementById("cartHelpNote");
-  const actions   = document.getElementById("cartActions");
-  const propInput = document.getElementById("selectedPropertiesInput");
+  const itemsEl    = document.getElementById("cartItems");
+  const emptyEl    = document.getElementById("cartEmpty");
+  const summaryEl  = document.getElementById("cartSummary");
+  const countEl    = document.getElementById("cartItemCount");
+  const countTotal = document.getElementById("cartItemCountTotal");
+  const helpNote   = document.getElementById("cartHelpNote");
+  const headerRow  = document.getElementById("cartHeaderRow");
+  const propInput  = document.getElementById("selectedPropertiesInput");
   if (!itemsEl) return;
 
-  const cart = getCart();
+  const cart  = getCart();
   const empty = cart.length === 0;
 
   if (emptyEl)   emptyEl.style.display   = empty ? "block" : "none";
   if (summaryEl) summaryEl.style.display  = empty ? "none"  : "block";
   if (helpNote)  helpNote.style.display   = empty ? "none"  : "flex";
-  if (actions)   actions.style.display    = empty ? "none"  : "flex";
+  if (headerRow) headerRow.style.display  = empty ? "none"  : "flex";
   if (countEl)   countEl.textContent      = cart.length;
   if (countTotal) countTotal.textContent  = cart.length;
   if (propInput)  propInput.value         = cart.map(c => `${c.title} (${c.price})`).join(" | ");
@@ -787,53 +878,59 @@ function renderCartPage() {
         </div>
         <div class="cart-item__price">${item.price}</div>
       </div>
-      <button class="cart-remove" onclick="removeCartItem(${item.id})">
-        <i class="ti ti-trash"></i> Remove
-      </button>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+        <button class="btn btn--outline" style="padding:.35rem .75rem;font-size:.78rem"
+          onclick="openDetailModal(${item.id})">
+          <i class="ti ti-info-circle"></i> Details
+        </button>
+        <button class="cart-remove" onclick="removeCartItem(${item.id})">
+          <i class="ti ti-trash"></i> Remove
+        </button>
+      </div>
     </div>`
   ).join("");
   observeFadeIns();
 }
 
 function removeCartItem(id) {
-  let cart = getCart().filter(c => c.id !== id);
-  saveCart(cart);
-  setSaveBtn(id, false);
+  removeFromCart(id);
   renderCartPage();
   showToast("Item removed from enquiry list.");
 }
 
 /* ============================================================
-   15. ADMIN — credentials stored in localStorage
+   16. ADMIN CREDENTIALS — fix #6 (password reset)
    ============================================================ */
 const ADMIN_KEY = "pp_admin_creds";
+const DEFAULT_CREDS = { username: "admin", password: "prestige2025", phone: "", email: "" };
 
 function getAdminCreds() {
   try {
     const stored = localStorage.getItem(ADMIN_KEY);
-    return stored
-      ? JSON.parse(stored)
-      : { username: "admin", password: "prestige2025", phone: "", email: "" };
-  } catch {
-    return { username: "admin", password: "prestige2025", phone: "", email: "" };
-  }
+    return stored ? { ...DEFAULT_CREDS, ...JSON.parse(stored) } : { ...DEFAULT_CREDS };
+  } catch { return { ...DEFAULT_CREDS }; }
 }
 function saveAdminCreds(creds) {
-  localStorage.setItem(ADMIN_KEY, JSON.stringify(creds));
+  try { localStorage.setItem(ADMIN_KEY, JSON.stringify(creds)); } catch(e) {}
 }
 
 /* ============================================================
-   16. LOGIN (fix #8 — no demo credentials shown in UI)
+   17. LOGIN — fix #6 (password reset works without saved phone/email)
    ============================================================ */
 function initLogin() {
   const form   = document.getElementById("loginForm");
   const status = document.getElementById("loginStatus");
   if (!form) return;
 
-  /* If already logged in → go to admin */
-  if (localStorage.getItem("pp_admin")) {
-    window.location.href = "admin.html";
-    return;
+  /* Only auto-redirect when on login page */
+  const onLoginPage = window.location.pathname.includes("login");
+  if (onLoginPage) {
+    try {
+      if (localStorage.getItem("pp_admin") === "true") {
+        window.location.href = "admin.html";
+        return;
+      }
+    } catch(e) {}
   }
 
   form.addEventListener("submit", e => {
@@ -841,9 +938,8 @@ function initLogin() {
     const creds = getAdminCreds();
     const user  = form.querySelector('[name="username"]').value.trim();
     const pass  = form.querySelector('[name="password"]').value;
-
     if (user === creds.username && pass === creds.password) {
-      localStorage.setItem("pp_admin", "true");
+      try { localStorage.setItem("pp_admin", "true"); } catch(e) {}
       showToast("Login successful! Redirecting…");
       setTimeout(() => window.location.href = "admin.html", 900);
     } else {
@@ -853,59 +949,78 @@ function initLogin() {
     }
   });
 
-  /* Password reset flow */
-  const resetLink = document.getElementById("resetPasswordLink");
-  const resetPanel = document.getElementById("resetPanel");
-  if (resetLink && resetPanel) {
-    resetLink.addEventListener("click", e => {
-      e.preventDefault();
-      resetPanel.style.display = resetPanel.style.display === "none" ? "block" : "none";
-    });
-  }
-  const resetForm = document.getElementById("resetForm");
+  /* Password reset panel — fix #6
+     Works even if phone/email not yet saved: shows a fallback setup message */
+  const resetForm   = document.getElementById("resetForm");
   const resetStatus = document.getElementById("resetStatus");
-  if (resetForm) {
-    resetForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const creds     = getAdminCreds();
-      const inputVal  = resetForm.querySelector('[name="reset_contact"]').value.trim().toLowerCase();
-      const newPass   = resetForm.querySelector('[name="new_password"]').value;
-      const confirm   = resetForm.querySelector('[name="confirm_password"]').value;
+  if (!resetForm) return;
 
-      const matchPhone = creds.phone && inputVal === creds.phone.toLowerCase();
-      const matchEmail = creds.email && inputVal === creds.email.toLowerCase();
+  resetForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const creds    = getAdminCreds();
+    const contact  = (document.getElementById("reset-contact")?.value || "").trim().toLowerCase();
+    const newPass  = document.getElementById("reset-new")?.value || "";
+    const confirm  = document.getElementById("reset-confirm")?.value || "";
 
-      if (!matchPhone && !matchEmail) {
-        if (resetStatus) { resetStatus.textContent = "Phone/email not recognised. Contact your system administrator."; resetStatus.className = "form-status error"; }
-        return;
+    /* Fix #6 — if no recovery info saved yet, inform admin */
+    if (!creds.phone && !creds.email) {
+      if (resetStatus) {
+        resetStatus.textContent = "No recovery phone or email is saved yet. Please log in and go to My Account to set them up first.";
+        resetStatus.className   = "form-status error";
       }
-      if (newPass.length < 6) {
-        if (resetStatus) { resetStatus.textContent = "New password must be at least 6 characters."; resetStatus.className = "form-status error"; }
-        return;
+      return;
+    }
+
+    /* Normalise stored phone — remove spaces for comparison */
+    const storedPhone = (creds.phone || "").replace(/\s/g, "").toLowerCase();
+    const storedEmail = (creds.email || "").toLowerCase();
+
+    const matchPhone = storedPhone && contact.replace(/\s/g,"") === storedPhone;
+    const matchEmail = storedEmail && contact === storedEmail;
+
+    if (!matchPhone && !matchEmail) {
+      if (resetStatus) {
+        resetStatus.textContent = "That phone number or email does not match our records. Try the other one, or contact your system administrator.";
+        resetStatus.className   = "form-status error";
       }
-      if (newPass !== confirm) {
-        if (resetStatus) { resetStatus.textContent = "Passwords do not match."; resetStatus.className = "form-status error"; }
-        return;
-      }
-      creds.password = newPass;
-      saveAdminCreds(creds);
-      resetForm.reset();
-      if (resetStatus) { resetStatus.textContent = "✓ Password reset successfully. You can now log in."; resetStatus.className = "form-status success"; }
-      if (resetPanel)  resetPanel.style.display = "none";
-      showToast("Password updated!");
-    });
-  }
+      return;
+    }
+    if (newPass.length < 6) {
+      if (resetStatus) { resetStatus.textContent = "New password must be at least 6 characters."; resetStatus.className = "form-status error"; }
+      return;
+    }
+    if (newPass !== confirm) {
+      if (resetStatus) { resetStatus.textContent = "Passwords do not match. Please try again."; resetStatus.className = "form-status error"; }
+      return;
+    }
+
+    creds.password = newPass;
+    saveAdminCreds(creds);
+    resetForm.reset();
+    if (resetStatus) { resetStatus.textContent = ""; resetStatus.className = "form-status"; }
+
+    const panel = document.getElementById("resetPanel");
+    if (panel) panel.style.display = "none";
+
+    const ls = document.getElementById("loginStatus");
+    if (ls) { ls.textContent = "✓ Password reset successfully. You can now sign in with your new password."; ls.className = "form-status success"; }
+    showToast("Password updated!");
+  });
 }
 
 /* ============================================================
-   17. ADMIN PAGE — full dashboard
+   18. ADMIN PAGE
    ============================================================ */
 function initAdmin() {
-  /* Auth guard */
-  if (!localStorage.getItem("pp_admin")) {
-    window.location.href = "login.html";
-    return;
-  }
+  /* Only run on admin.html */
+  if (!window.location.pathname.includes("admin")) return;
+  try {
+    if (localStorage.getItem("pp_admin") !== "true") {
+      localStorage.removeItem("pp_admin");
+      window.location.href = "login.html";
+      return;
+    }
+  } catch(e) { window.location.href = "login.html"; return; }
   renderAdminTable();
   renderInbox();
 }
@@ -914,31 +1029,22 @@ function renderAdminTable() {
   const tbody = document.getElementById("adminTableBody");
   if (!tbody) return;
   const listings = getListings();
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set("adminTotalCount",    listings.length);
+  set("adminLandCount",     listings.filter(l => l.type === "land").length);
+  set("adminRentCount",     listings.filter(l => l.type === "rent").length);
+  set("adminFeaturedCount", listings.filter(l => l.featured).length);
+  set("adminMsgCount",      getMessages().length);
 
-  /* Stat counters */
-  const els = {
-    total:     document.getElementById("adminTotalCount"),
-    land:      document.getElementById("adminLandCount"),
-    rent:      document.getElementById("adminRentCount"),
-    featured:  document.getElementById("adminFeaturedCount"),
-    available: document.getElementById("adminAvailableCount"),
-  };
-  if (els.total)     els.total.textContent     = listings.length;
-  if (els.land)      els.land.textContent      = listings.filter(l => l.type==="land").length;
-  if (els.rent)      els.rent.textContent      = listings.filter(l => l.type==="rent").length;
-  if (els.featured)  els.featured.textContent  = listings.filter(l => l.featured).length;
-  if (els.available) els.available.textContent = listings.filter(l => l.available).length;
-
-  /* Unread inbox badge */
-  const inboxBadge = document.getElementById("inboxBadge");
-  if (inboxBadge) inboxBadge.textContent = getUnreadCount() || "";
+  const unread = getUnreadCount();
+  const badge  = document.getElementById("inboxBadge");
+  if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? "inline" : "none"; }
 
   if (listings.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8">
-      <div style="text-align:center;padding:3rem;color:var(--text-muted)">
-        <i class="ti ti-building-off" style="font-size:2rem;display:block;margin-bottom:.75rem;color:var(--purple-light);opacity:.4"></i>
-        No listings. Add one using the "Add New Listing" tab.
-      </div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div style="text-align:center;padding:3rem;color:var(--text-muted)">
+      <i class="ti ti-building-off" style="font-size:2rem;display:block;margin-bottom:.75rem;color:var(--purple-light);opacity:.35"></i>
+      No listings yet. Use the "Add Listing" tab.
+    </div></td></tr>`;
     return;
   }
 
@@ -962,8 +1068,7 @@ function renderAdminTable() {
       <td style="font-size:.82rem;font-weight:500">${l.priceLabel}</td>
       <td>${l.photos && l.photos.length > 0
         ? `<span style="font-size:.78rem;color:var(--green-tag)"><i class="ti ti-photo"></i> ${l.photos.length}</span>`
-        : `<span style="font-size:.78rem;color:var(--text-muted)">No photos</span>`}
-      </td>
+        : `<span style="font-size:.78rem;color:var(--text-muted)">None</span>`}</td>
       <td>${l.featured
         ? '<i class="ti ti-star-filled" style="color:var(--purple)"></i>'
         : '<i class="ti ti-star" style="color:var(--silver)"></i>'}</td>
@@ -974,15 +1079,19 @@ function renderAdminTable() {
       </td>
       <td>
         <div style="display:flex;gap:.35rem;flex-wrap:wrap">
-          <button class="btn btn--outline" style="padding:.3rem .65rem;font-size:.73rem"
-            onclick="toggleAvailability(${l.id})" title="Toggle availability">
+          <button class="btn btn--outline" style="padding:.3rem .6rem;font-size:.72rem"
+            onclick="openEditModal(${l.id})" title="Edit listing">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="btn btn--outline" style="padding:.3rem .6rem;font-size:.72rem"
+            onclick="toggleAvailability(${l.id})" title="Toggle available/taken">
             <i class="ti ti-refresh"></i>
           </button>
-          <button class="btn btn--outline" style="padding:.3rem .65rem;font-size:.73rem"
+          <button class="btn btn--outline" style="padding:.3rem .6rem;font-size:.72rem"
             onclick="toggleFeatured(${l.id})" title="Toggle featured">
             <i class="ti ti-star"></i>
           </button>
-          <button class="btn btn--danger" style="padding:.3rem .65rem;font-size:.73rem"
+          <button class="btn btn--danger" style="padding:.3rem .6rem;font-size:.72rem"
             onclick="deleteListing(${l.id})" title="Delete">
             <i class="ti ti-trash"></i>
           </button>
@@ -992,60 +1101,202 @@ function renderAdminTable() {
   ).join("");
 }
 
+/* ── Edit listing modal (fix #2) ── */
+function openEditModal(id) {
+  const listings = getListings();
+  const item     = listings.find(l => l.id === Number(id));
+  if (!item) return;
+
+  document.getElementById("editModal")?.remove();
+
+  const districtOptions = UGANDA_DISTRICTS.map(d =>
+    `<option value="${d.value}"${d.value === item.locationKey ? " selected" : ""}>${d.label}</option>`
+  ).join("");
+
+  const modal = document.createElement("div");
+  modal.id    = "editModal";
+  modal.style.cssText = `position:fixed;inset:0;z-index:9000;background:rgba(10,7,18,.75);
+    backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+    padding:1rem;animation:fadeInModal .2s ease`;
+
+  modal.innerHTML = `
+    <style>
+      @keyframes fadeInModal{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+      .edit-modal-inner{background:var(--white);border-radius:var(--radius-lg);max-width:600px;
+        width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.35);position:relative;padding:2rem}
+      .edit-modal-close{position:absolute;top:1rem;right:1rem;background:var(--off-white);
+        border:1px solid var(--silver-light);border-radius:50%;width:34px;height:34px;
+        display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;
+        color:var(--text-mid);transition:all .2s ease}
+      .edit-modal-close:hover{background:var(--red-bg);color:var(--red-tag);border-color:var(--red-tag)}
+    </style>
+    <div class="edit-modal-inner">
+      <button class="edit-modal-close" onclick="closeEditModal()"><i class="ti ti-x"></i></button>
+      <h2 style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;
+        color:var(--text-primary);margin-bottom:1.5rem;padding-bottom:.85rem;
+        border-bottom:1px solid var(--silver-light)">
+        <i class="ti ti-pencil" style="color:var(--purple);margin-right:8px"></i>Edit Listing #${item.id}
+      </h2>
+
+      <form id="editListingForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label>Type</label>
+            <select name="type">
+              <option value="land"${item.type==="land"?" selected":""}>Land for Sale</option>
+              <option value="rent"${item.type==="rent"?" selected":""}>House for Rent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>District</label>
+            <select name="locationKey">${districtOptions}</select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Title <span class="req">*</span></label>
+          <input type="text" name="title" value="${item.title}" required />
+        </div>
+        <div class="form-group">
+          <label>Full Location <span class="req">*</span></label>
+          <input type="text" name="location" value="${item.location}" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label>Price (numbers only)</label>
+            <input type="number" name="price" value="${item.price}" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Price Label</label>
+            <input type="text" name="priceLabel" value="${item.priceLabel}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Price Note</label>
+          <input type="text" name="priceNote" value="${item.priceNote}" />
+        </div>
+        <div class="form-group">
+          <label>Features (comma-separated)</label>
+          <input type="text" name="features" value="${item.features.join(", ")}" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" rows="3">${item.description || ""}</textarea>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem">
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.875rem">
+            <input type="checkbox" name="available" ${item.available?"checked":""} style="accent-color:var(--purple);width:17px;height:17px" />
+            Available (unchecked = Taken)
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.875rem">
+            <input type="checkbox" name="featured" ${item.featured?"checked":""} style="accent-color:var(--purple);width:17px;height:17px" />
+            Featured on home page
+          </label>
+        </div>
+        <div class="form-status" id="editStatus" style="text-align:left;margin-bottom:.75rem"></div>
+        <div style="display:flex;gap:.75rem">
+          <button type="submit" class="btn btn--primary" style="flex:1;justify-content:center">
+            <i class="ti ti-device-floppy"></i> Save Changes
+          </button>
+          <button type="button" class="btn btn--outline" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if (e.target === modal) closeEditModal(); });
+  document.body.style.overflow = "hidden";
+
+  document.getElementById("editListingForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const f        = e.target;
+    const listings = getListings();
+    const idx      = listings.findIndex(l => l.id === Number(id));
+    if (idx === -1) return;
+
+    const rawFeats   = f.querySelector('[name="features"]').value;
+    const features   = rawFeats.split(",").map(s => s.trim()).filter(Boolean);
+    const type       = f.querySelector('[name="type"]').value;
+    const landIcons  = ["ti-ruler","ti-certificate","ti-road","ti-mountain","ti-droplet"];
+    const rentIcons  = ["ti-bed","ti-bath","ti-car","ti-bolt","ti-home"];
+
+    listings[idx] = {
+      ...listings[idx],
+      type,
+      locationKey: f.querySelector('[name="locationKey"]').value,
+      title:       f.querySelector('[name="title"]').value.trim(),
+      location:    f.querySelector('[name="location"]').value.trim(),
+      price:       parseInt(f.querySelector('[name="price"]').value, 10) || listings[idx].price,
+      priceLabel:  f.querySelector('[name="priceLabel"]').value.trim(),
+      priceNote:   f.querySelector('[name="priceNote"]').value.trim(),
+      features,
+      featureIcons: features.map((_, i) => type === "land" ? (landIcons[i] || "ti-check") : (rentIcons[i] || "ti-check")),
+      description: f.querySelector('[name="description"]').value.trim(),
+      available:   f.querySelector('[name="available"]').checked,
+      featured:    f.querySelector('[name="featured"]').checked,
+    };
+
+    saveListings(listings);
+    closeEditModal();
+    renderAdminTable();
+    showToast("Listing updated successfully!");
+  });
+}
+
+function closeEditModal() {
+  document.getElementById("editModal")?.remove();
+  document.body.style.overflow = "";
+}
+
 function toggleAvailability(id) {
   const listings = getListings();
-  const item     = listings.find(l => l.id === id);
-  if (item) {
-    item.available = !item.available;
-    saveListings(listings);
-    renderAdminTable();
-    /* Refresh any visible cards on page */
-    renderHomeListings();
-    showToast(item.available ? "Marked as Available." : "Marked as Taken.");
-  }
+  const item     = listings.find(l => l.id === Number(id));
+  if (!item) return;
+  item.available = !item.available;
+  saveListings(listings);
+  renderAdminTable();
+  showToast(item.available ? "Marked as Available." : "Marked as Taken.");
 }
-
 function toggleFeatured(id) {
   const listings = getListings();
-  const item     = listings.find(l => l.id === id);
-  if (item) {
-    item.featured = !item.featured;
-    saveListings(listings);
-    renderAdminTable();
-    showToast(item.featured ? "Marked as Featured." : "Removed from Featured.");
-  }
+  const item     = listings.find(l => l.id === Number(id));
+  if (!item) return;
+  item.featured = !item.featured;
+  saveListings(listings);
+  renderAdminTable();
+  showToast(item.featured ? "Marked as Featured." : "Removed from Featured.");
 }
-
 function deleteListing(id) {
   if (!confirm("Delete this listing permanently?")) return;
-  saveListings(getListings().filter(l => l.id !== id));
+  saveListings(getListings().filter(l => l.id !== Number(id)));
   renderAdminTable();
   showToast("Listing deleted.");
 }
-
-/* Reset ALL listings — removes every item (fix #4) */
 function resetAllListings() {
-  if (!confirm("This will permanently delete ALL listings.\nNothing will remain. Are you sure?")) return;
+  if (!confirm("PERMANENTLY delete ALL listings?\nNothing will remain. This cannot be undone.")) return;
   localStorage.removeItem("pp_listings");
-  saveListings([]); /* save empty array, not defaults */
+  saveListings([]);
   renderAdminTable();
   showToast("All listings deleted.");
 }
 
 /* ============================================================
-   18. INBOX RENDER (fix #11)
+   19. INBOX RENDER
    ============================================================ */
 function renderInbox() {
   const container = document.getElementById("inboxList");
   if (!container) return;
   const messages = getMessages();
+  const unread   = getUnreadCount();
   const badge    = document.getElementById("inboxBadge");
-  if (badge) badge.textContent = getUnreadCount() || "";
+  if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? "inline" : "none"; }
+  const note = document.getElementById("inboxCountNote");
+  if (note) note.textContent = `${messages.length} message${messages.length !== 1 ? "s" : ""} · ${unread} unread`;
 
   if (messages.length === 0) {
     container.innerHTML = `<div class="inbox-empty">
       <i class="ti ti-mail-off"></i>
-      No messages yet. They will appear here when clients submit the contact form.
+      <p>No messages yet.<br/>Messages from the contact form and property enquiries appear here.<br/>
+      <span style="font-size:.8rem;color:var(--purple)">Note: messages from other devices arrive via your Netlify email notifications.</span></p>
     </div>`;
     return;
   }
@@ -1053,7 +1304,7 @@ function renderInbox() {
   container.innerHTML = messages.map(m => `
     <div class="inbox-msg${m.unread ? " unread" : ""}" data-msgid="${m.id}">
       <div class="inbox-msg__header">
-        <span class="inbox-msg__from"><i class="ti ti-user" style="margin-right:5px;color:var(--purple)"></i>${m.from}</span>
+        <span class="inbox-msg__from"><i class="ti ti-user" style="color:var(--purple)"></i> ${m.from}</span>
         <span class="inbox-msg__time">${m.time}</span>
       </div>
       <div class="inbox-msg__subject">${m.subject || "No subject"}</div>
@@ -1061,11 +1312,8 @@ function renderInbox() {
       <div class="inbox-msg__meta">
         ${m.phone ? `<span class="inbox-msg__tag"><i class="ti ti-phone"></i> ${m.phone}</span>` : ""}
         ${m.email ? `<span class="inbox-msg__tag"><i class="ti ti-mail"></i> ${m.email}</span>` : ""}
-        ${m.type  ? `<span class="inbox-msg__tag">${m.type}</span>` : ""}
-        <button onclick="deleteMessage(${m.id});renderInbox()"
-          style="margin-left:auto;background:none;border:none;color:var(--text-muted);
-                 cursor:pointer;font-size:.75rem;display:flex;align-items:center;gap:3px;
-                 font-family:var(--font-sans)">
+        ${m.type  ? `<span class="inbox-msg__tag inbox-msg__tag--${m.type==="enquiry"?"enquiry":""}">${m.type}</span>` : ""}
+        <button class="inbox-del-btn" onclick="deleteSingleMessage(${m.id})">
           <i class="ti ti-trash"></i> Delete
         </button>
       </div>
@@ -1074,28 +1322,28 @@ function renderInbox() {
 }
 
 /* ============================================================
-   19. TOAST
+   20. TOAST
    ============================================================ */
-let toastTimer = null;
+let _toastTimer = null;
 function showToast(message) {
   const toast = document.getElementById("toast");
   if (!toast) return;
   toast.textContent = message;
   toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
 
 /* ============================================================
-   20. BACK TO TOP
+   21. BACK TO TOP
    ============================================================ */
 function initBackToTop() {
-  const btn = document.getElementById("backToTop");
-  if (btn) btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  document.getElementById("backToTop")?.addEventListener("click",
+    () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
 /* ============================================================
-   21. INIT
+   22. INIT — DOMContentLoaded
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   initNavbar();
@@ -1104,7 +1352,6 @@ document.addEventListener("DOMContentLoaded", () => {
   observeFadeIns();
   populateDistrictDropdowns();
 
-  /* Page-specific */
   renderHomeListings();
   initCounters();
   initHeroTags();
@@ -1120,10 +1367,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchForm) searchForm.addEventListener("submit", handleSearch);
 });
 
-/* ── Global exposure ── */
+/* ============================================================
+   23. GLOBAL EXPOSURE — all onclick handlers must be global
+   ============================================================ */
 window.toggleCart          = toggleCart;
-window.addToCartThenGo     = addToCartThenGo;
+window.openDetailModal     = openDetailModal;
+window.closeDetailModal    = closeDetailModal;
+window.openEditModal       = openEditModal;
+window.closeEditModal      = closeEditModal;
 window.removeCartItem      = removeCartItem;
+window.removeFromCart      = removeFromCart;
 window.toggleAvailability  = toggleAvailability;
 window.toggleFeatured      = toggleFeatured;
 window.deleteListing       = deleteListing;
@@ -1137,7 +1390,10 @@ window.showToast           = showToast;
 window.renderAdminTable    = renderAdminTable;
 window.renderInbox         = renderInbox;
 window.deleteMessage       = deleteMessage;
+window.deleteSingleMessage = (id) => { deleteMessage(id); renderInbox(); renderAdminTable(); };
 window.markAllRead         = markAllRead;
 window.getMessages         = getMessages;
 window.getUnreadCount      = getUnreadCount;
+window.saveMessage         = saveMessage;
+window.isInCart            = isInCart;
 window.UGANDA_DISTRICTS    = UGANDA_DISTRICTS;

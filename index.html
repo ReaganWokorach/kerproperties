@@ -16,7 +16,6 @@
   <!-- ===================== NAVBAR ===================== -->
   <header class="navbar" id="navbar">
     <div class="container navbar__inner">
-
       <a href="index.html" class="navbar__logo">
         <img src="ppLogo.png" alt="Prestige Properties Logo" />
         <div class="logo-wordmark">
@@ -153,9 +152,8 @@
           View All Land <i class="ti ti-arrow-right"></i>
         </a>
       </div>
-      <div class="listings__grid" id="landGrid">
-        <!-- Rendered by main.js -->
-      </div>
+      <!-- Cards rendered by main.js — heart uses toggleCart(), Enquire uses openDetailModal() -->
+      <div class="listings__grid" id="landGrid"></div>
     </div>
   </section>
 
@@ -181,16 +179,15 @@
           <h2 class="section-title">Houses for Rent</h2>
           <div class="section-divider"></div>
           <p class="section-sub" style="margin-top:.85rem">
-            Self-contained rooms to full family homes — available in cities and towns across Uganda.
+            Self-contained rooms to full family homes — available across Uganda.
           </p>
         </div>
         <a href="properties.html?type=rent" class="btn btn--outline">
           View All Rentals <i class="ti ti-arrow-right"></i>
         </a>
       </div>
-      <div class="listings__grid" id="rentGrid">
-        <!-- Rendered by main.js -->
-      </div>
+      <!-- Cards rendered by main.js -->
+      <div class="listings__grid" id="rentGrid"></div>
     </div>
   </section>
 
@@ -241,7 +238,7 @@
           <div class="testi-card__stars">★★★★★</div>
           <p class="testi-card__text">
             "Bought 2 acres in Mbarara City. Professional team, honest pricing,
-            and the transfer was completed faster than I expected. 10/10."
+            and the transfer was completed faster than I expected. 10 out of 10."
           </p>
           <div class="testi-card__author">
             <div class="avatar">AM</div>
@@ -314,7 +311,7 @@
         </div>
       </div>
 
-      <!-- Right: Quick form -->
+      <!-- Right: Quick contact form -->
       <form
         class="contact__form fade-in"
         id="contactForm"
@@ -376,7 +373,6 @@
   <!-- ===================== FOOTER ===================== -->
   <footer class="footer">
     <div class="container footer__grid">
-
       <div class="footer__brand">
         <a href="index.html" class="footer__logo">
           <img src="ppLogo.png" alt="Prestige Properties" />
@@ -390,27 +386,16 @@
           Your property dream starts here.
         </p>
         <div class="footer__socials">
-          <!-- Update hrefs to your real social media URLs -->
           <a href="https://facebook.com/YOUR_PAGE" target="_blank" rel="noopener"
-             class="social-link" aria-label="Facebook">
-            <i class="ti ti-brand-facebook"></i>
-          </a>
+             class="social-link" aria-label="Facebook"><i class="ti ti-brand-facebook"></i></a>
           <a href="https://wa.me/2567XXXXXXXX" target="_blank" rel="noopener"
-             class="social-link" aria-label="WhatsApp">
-            <i class="ti ti-brand-whatsapp"></i>
-          </a>
+             class="social-link" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp"></i></a>
           <a href="https://instagram.com/YOUR_HANDLE" target="_blank" rel="noopener"
-             class="social-link" aria-label="Instagram">
-            <i class="ti ti-brand-instagram"></i>
-          </a>
+             class="social-link" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></a>
           <a href="https://linkedin.com/company/YOUR_PAGE" target="_blank" rel="noopener"
-             class="social-link" aria-label="LinkedIn">
-            <i class="ti ti-brand-linkedin"></i>
-          </a>
+             class="social-link" aria-label="LinkedIn"><i class="ti ti-brand-linkedin"></i></a>
           <a href="https://tiktok.com/@YOUR_HANDLE" target="_blank" rel="noopener"
-             class="social-link" aria-label="TikTok">
-            <i class="ti ti-brand-tiktok"></i>
-          </a>
+             class="social-link" aria-label="TikTok"><i class="ti ti-brand-tiktok"></i></a>
         </div>
       </div>
 
@@ -455,11 +440,13 @@
     </div>
   </footer>
 
+  <!-- Toast & Back-to-top -->
   <div class="toast" id="toast"></div>
   <button class="back-to-top" id="backToTop" aria-label="Back to top">
     <i class="ti ti-arrow-up"></i>
   </button>
 
+  <!-- main.js loads last so all DOM elements exist before scripts run -->
   <script src="main.js"></script>
 </body>
 </html>
