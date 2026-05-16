@@ -922,10 +922,15 @@ function initLogin() {
   const status = document.getElementById("loginStatus");
   if (!form) return;
 
-  /* If already logged in → go to admin */
-  if (localStorage.getItem("pp_admin")) {
-    window.location.href = "admin.html";
-    return;
+  /* Only auto-redirect when on login page */
+  const onLoginPage = window.location.pathname.includes("login");
+  if (onLoginPage) {
+    try {
+      if (localStorage.getItem("pp_admin") === "true") {
+        window.location.href = "admin.html";
+        return;
+      }
+    } catch(e) {}
   }
 
   form.addEventListener("submit", e => {
@@ -1007,11 +1012,15 @@ function initLogin() {
    18. ADMIN PAGE
    ============================================================ */
 function initAdmin() {
-  /* Auth guard */
-  if (!localStorage.getItem("pp_admin")) {
-    window.location.href = "login.html";
-    return;
-  }
+  /* Only run on admin.html */
+  if (!window.location.pathname.includes("admin")) return;
+  try {
+    if (localStorage.getItem("pp_admin") !== "true") {
+      localStorage.removeItem("pp_admin");
+      window.location.href = "login.html";
+      return;
+    }
+  } catch(e) { window.location.href = "login.html"; return; }
   renderAdminTable();
   renderInbox();
 }
