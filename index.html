@@ -48,11 +48,20 @@
     </div>
   </header>
 
-  <!-- ===================== HERO ===================== -->
+  <!-- ===================== HERO — Photo Slideshow + Ken Burns ===================== -->
   <section class="hero">
-    <div class="hero__bg"></div>
-    <div class="hero__grid"></div>
 
+    <!-- Background photo slides — each cycles with Ken Burns zoom -->
+    <div class="hero__slides">
+      <div class="hero__slide active"></div>  <!-- hero1.jpg via CSS -->
+      <div class="hero__slide"></div>          <!-- hero2.jpg via CSS -->
+      <div class="hero__slide"></div>          <!-- hero3.jpg via CSS -->
+    </div>
+
+    <!-- Gradient overlay -->
+    <div class="hero__overlay"></div>
+
+    <!-- Content -->
     <div class="hero__inner">
       <div class="hero__badge">
         <i class="ti ti-crown"></i> Uganda's Prestige Property Partner
@@ -80,18 +89,14 @@
             autocomplete="off"
           />
         </div>
-
         <select id="searchType" class="search__select">
           <option value="all">All Types</option>
           <option value="land">Land for Sale</option>
           <option value="rent">House for Rent</option>
         </select>
-
-        <!-- District dropdown — populated by main.js -->
         <select id="searchLocation" class="search__select district-select">
           <option value="all">All Districts</option>
         </select>
-
         <button type="submit" class="btn btn--primary search__btn">
           <i class="ti ti-search"></i> Search
         </button>
@@ -108,6 +113,14 @@
       </div>
     </div>
 
+    <!-- Slide navigation dots -->
+    <div class="hero__dots" id="heroDots">
+      <button class="hero__dot active" data-slide="0" aria-label="Slide 1"></button>
+      <button class="hero__dot" data-slide="1" aria-label="Slide 2"></button>
+      <button class="hero__dot" data-slide="2" aria-label="Slide 3"></button>
+    </div>
+
+    <!-- Scroll indicator -->
     <div class="hero__scroll">
       <span>Scroll</span>
       <i class="ti ti-chevron-down"></i>
@@ -152,7 +165,6 @@
           View All Land <i class="ti ti-arrow-right"></i>
         </a>
       </div>
-      <!-- Cards rendered by main.js — heart uses toggleCart(), Enquire uses openDetailModal() -->
       <div class="listings__grid" id="landGrid"></div>
     </div>
   </section>
@@ -186,7 +198,6 @@
           View All Rentals <i class="ti ti-arrow-right"></i>
         </a>
       </div>
-      <!-- Cards rendered by main.js -->
       <div class="listings__grid" id="rentGrid"></div>
     </div>
   </section>
@@ -262,7 +273,6 @@
   <section class="contact">
     <div class="container contact__inner">
 
-      <!-- Left: Info -->
       <div class="contact__info fade-in">
         <span class="section-tag">Get In Touch</span>
         <h2 class="section-title">Talk to Our Team</h2>
@@ -311,7 +321,6 @@
         </div>
       </div>
 
-      <!-- Right: Quick contact form -->
       <form
         class="contact__form fade-in"
         id="contactForm"
@@ -440,13 +449,75 @@
     </div>
   </footer>
 
-  <!-- Toast & Back-to-top -->
   <div class="toast" id="toast"></div>
   <button class="back-to-top" id="backToTop" aria-label="Back to top">
     <i class="ti ti-arrow-up"></i>
   </button>
 
-  <!-- main.js loads last so all DOM elements exist before scripts run -->
   <script src="main.js"></script>
+  <script>
+    /* ── Hero photo slideshow with Ken Burns effect ── */
+    (function() {
+      const slides    = document.querySelectorAll(".hero__slide");
+      const dots      = document.querySelectorAll(".hero__dot");
+      let   current   = 0;
+      let   autoTimer = null;
+
+      function goTo(idx) {
+        /* Remove active from current */
+        slides[current].classList.remove("active");
+        dots[current].classList.remove("active");
+
+        /* Force reflow so animation restarts on next slide */
+        slides[idx].style.animation = "none";
+        slides[idx].offsetHeight; /* trigger reflow */
+        slides[idx].style.animation = "";
+
+        current = idx;
+        slides[current].classList.add("active");
+        dots[current].classList.add("active");
+      }
+
+      function nextSlide() {
+        goTo((current + 1) % slides.length);
+      }
+
+      function startAuto() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(nextSlide, 6000); /* change every 6s */
+      }
+
+      /* Dot clicks */
+      dots.forEach(dot => {
+        dot.addEventListener("click", () => {
+          goTo(parseInt(dot.dataset.slide, 10));
+          startAuto(); /* reset timer after manual nav */
+        });
+      });
+
+      /* Keyboard navigation */
+      document.addEventListener("keydown", e => {
+        if (e.key === "ArrowRight") { goTo((current + 1) % slides.length); startAuto(); }
+        if (e.key === "ArrowLeft")  { goTo((current - 1 + slides.length) % slides.length); startAuto(); }
+      });
+
+      /* Touch / swipe support */
+      let touchStartX = 0;
+      const hero = document.querySelector(".hero");
+      hero?.addEventListener("touchstart", e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      hero?.addEventListener("touchend", e => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+          goTo(diff > 0
+            ? (current + 1) % slides.length
+            : (current - 1 + slides.length) % slides.length);
+          startAuto();
+        }
+      }, { passive: true });
+
+      /* Start auto-play */
+      startAuto();
+    })();
+  </script>
 </body>
 </html>
