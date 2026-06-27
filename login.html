@@ -383,14 +383,17 @@
   <script src="main.js"></script>
   <script>
     /* ── Auto-redirect if already logged in ── */
-    /* Strict check: only redirect if value is exactly "true" */
+    /* Strict check: only redirect if value is exactly "true".
+       Uses sessionStorage so the admin session ends when the tab/page
+       is closed, refreshed, or navigated away from — not persisted
+       indefinitely like localStorage. */
     try {
-      if (localStorage.getItem("kp_admin") === "true") {
+      if (sessionStorage.getItem("kp_admin") === "true") {
         window.location.href = "admin.html";
       }
     } catch (e) {
-      /* localStorage blocked (private mode etc) — do nothing, show login form */
-      console.warn("localStorage unavailable:", e);
+      /* sessionStorage blocked (private mode etc) — do nothing, show login form */
+      console.warn("sessionStorage unavailable:", e);
     }
 
     /* ── Password show/hide — login field ── */

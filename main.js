@@ -1012,7 +1012,7 @@ function initLogin() {
   const onLoginPage = window.location.pathname.includes("login");
   if (onLoginPage) {
     try {
-      if (localStorage.getItem("kp_admin") === "true") {
+      if (sessionStorage.getItem("kp_admin") === "true") {
         window.location.href = "admin.html";
         return;
       }
@@ -1025,7 +1025,7 @@ function initLogin() {
     const user  = form.querySelector('[name="username"]').value.trim();
     const pass  = form.querySelector('[name="password"]').value;
     if (user.toLowerCase() === creds.username.toLowerCase() && pass === creds.password) {
-      try { localStorage.setItem("kp_admin", "true"); } catch(e) {}
+      try { sessionStorage.setItem("kp_admin", "true"); } catch(e) {}
       showToast("Login successful! Redirecting…");
       setTimeout(() => window.location.href = "admin.html", 900);
     } else {
@@ -1101,12 +1101,21 @@ function initAdmin() {
   /* Only run on admin.html */
   if (!window.location.pathname.includes("admin")) return;
   try {
-    if (localStorage.getItem("kp_admin") !== "true") {
-      localStorage.removeItem("kp_admin");
+    if (sessionStorage.getItem("kp_admin") !== "true") {
+      sessionStorage.removeItem("kp_admin");
       window.location.href = "login.html";
       return;
     }
   } catch(e) { window.location.href = "login.html"; return; }
+
+  /* Security: sign out the moment this page is left — by refreshing,
+     navigating to any other page (including clicking a public nav link),
+     or closing the tab. The admin session only stays alive while this
+     exact page instance remains open. */
+  window.addEventListener("pagehide", () => {
+    try { sessionStorage.removeItem("kp_admin"); } catch(e) {}
+  });
+
   renderAdminTable();
   renderInbox();
 }
