@@ -1015,7 +1015,7 @@ function removeCartItem(id) {
    16. ADMIN CREDENTIALS — fix #6 (password reset)
    ============================================================ */
 const ADMIN_KEY = "kp_admin_creds";
-const DEFAULT_CREDS = { username: "admin", password: "ker2025", phone: "", email: "" };
+const DEFAULT_CREDS = { username: "admin", password: "ker2026", phone: "", email: "" };
 
 function getAdminCreds() {
   try {
