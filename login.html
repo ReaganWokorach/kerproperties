@@ -133,7 +133,7 @@
 </head>
 <body>
 
-  <!-- ===================== NAVBAR ===================== -->
+  
   <header class="navbar" id="navbar">
     <div class="container navbar__inner">
       <a href="index.html" class="navbar__logo">
@@ -165,7 +165,7 @@
     </div>
   </header>
 
-  <!-- ===================== LOGIN PAGE ===================== -->
+  
   <main class="login-page">
 
     <div class="login-grid"></div>
@@ -175,7 +175,7 @@
 
     <div class="login-card fade-in">
 
-      <!-- Logo -->
+      
       <div class="login-card__logo">
         <img src="kpLogo.png" alt="Ker Properties" />
       </div>
@@ -185,17 +185,12 @@
         Authorised personnel only. Sign in to manage listings and view enquiries.
       </p>
 
-      <!-- Security note (no credentials shown — fix #8) -->
       <div class="security-note">
         <i class="ti ti-shield-lock"></i>
-        <span>
-          This area is restricted to authorised administrators.
-          If you have forgotten your password, use the
-          <strong>"Forgot password?"</strong> link below.
-        </span>
+        <span>Authorised personnel only.</span>
       </div>
 
-      <!-- ── Login form ── -->
+      
       <form id="loginForm" novalidate>
 
         <div class="form-group">
@@ -233,10 +228,10 @@
           </div>
         </div>
 
-        <!-- Forgot password link -->
+        
         <a class="forgot-link" id="forgotLink">Forgot password?</a>
 
-        <!-- Login status -->
+        
         <div class="form-status" id="loginStatus" style="margin-bottom:.85rem"></div>
 
         <button type="submit" class="btn btn--primary btn--full" id="loginBtn">
@@ -244,31 +239,24 @@
         </button>
       </form>
 
-      <!-- ── Password reset panel (sibling of loginForm — NOT nested inside it) ── -->
+      
       <div class="reset-panel" id="resetPanel">
         <h4><i class="ti ti-key" style="color:var(--purple);margin-right:6px"></i>Reset Password</h4>
-        <p>
-          Enter the phone number or email address registered with this admin account.
-          If it matches, you can set a new password below.
-        </p>
 
-        <!-- ── STEP 1: Enter recovery contact ── -->
+        
         <div id="resetStep1">
           <div class="form-group">
-            <label for="reset-contact">
-              <i class="ti ti-phone" style="font-size:.82rem;margin-right:4px"></i>
-              Recovery Phone or Email <span class="req">*</span>
-            </label>
+            <label for="reset-contact">Recovery Phone or Email <span class="req">*</span></label>
             <input
               type="text"
               id="reset-contact"
-              name="reset_contact"
-              placeholder="e.g. +256 7XX XXX XXX or admin@email.com"
+              placeholder="+256 7XX XXX XXX or admin@email.com"
             />
           </div>
+          <div class="form-status" id="resetStatus" style="margin-bottom:.75rem"></div>
           <div style="display:flex;gap:.75rem">
             <button type="button" class="btn btn--primary" id="sendOtpBtn" style="flex:1;justify-content:center">
-              <i class="ti ti-send"></i> Send Verification Code
+              <i class="ti ti-send"></i> Send Code
             </button>
             <button type="button" class="btn btn--outline" id="cancelReset" style="justify-content:center">
               Cancel
@@ -276,64 +264,61 @@
           </div>
         </div>
 
-        <!-- ── STEP 2: Enter OTP + new password (hidden until code sent) ── -->
+        
         <form id="resetForm" novalidate>
-        <div id="resetStep2" style="display:none">
-          <div class="form-group">
-            <label for="reset-otp">
-              <i class="ti ti-shield-check" style="font-size:.82rem;margin-right:4px;color:var(--purple)"></i>
-              Verification Code <span class="req">*</span>
-            </label>
-            <input
-              type="text"
-              id="reset-otp"
-              name="otp_code"
-              placeholder="Enter the 6-digit code"
-              maxlength="6"
-              inputmode="numeric"
-              autocomplete="one-time-code"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="reset-new">New Password <span class="req">*</span></label>
-            <div class="input-wrap">
+          <div id="resetStep2" style="display:none">
+            <div class="form-group">
+              <label for="reset-otp">
+                <i class="ti ti-shield-check" style="font-size:.82rem;margin-right:4px;color:var(--purple)"></i>
+                Verification Code <span class="req">*</span>
+              </label>
               <input
-                type="password"
-                id="reset-new"
-                name="new_password"
-                placeholder="At least 6 characters"
+                type="text"
+                id="reset-otp"
+                placeholder="6-digit code"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="one-time-code"
                 required
               />
-              <button type="button" class="pw-toggle" id="resetPwToggle" aria-label="Toggle">
-                <i class="ti ti-eye" id="resetPwIcon"></i>
+            </div>
+
+            <div class="form-group">
+              <label for="reset-new">New Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input
+                  type="password"
+                  id="reset-new"
+                  placeholder="At least 6 characters"
+                  required
+                />
+                <button type="button" class="pw-toggle" id="resetPwToggle" aria-label="Toggle">
+                  <i class="ti ti-eye" id="resetPwIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reset-confirm">Confirm Password <span class="req">*</span></label>
+              <input
+                type="password"
+                id="reset-confirm"
+                placeholder="Re-enter new password"
+                required
+              />
+            </div>
+
+            <div class="form-status" id="resetStatusStep2" style="margin-bottom:.75rem"></div>
+
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+              <button type="submit" class="btn btn--primary" style="flex:1;justify-content:center">
+                <i class="ti ti-lock-check"></i> Set New Password
+              </button>
+              <button type="button" id="resendOtpBtn" class="btn btn--outline" style="justify-content:center">
+                <i class="ti ti-refresh"></i> Resend Code
               </button>
             </div>
           </div>
-
-          <div class="form-group">
-            <label for="reset-confirm">Confirm New Password <span class="req">*</span></label>
-            <input
-              type="password"
-              id="reset-confirm"
-              name="confirm_password"
-              placeholder="Re-enter new password"
-              required
-            />
-          </div>
-
-          <div style="display:flex;gap:.75rem">
-            <button type="submit" class="btn btn--primary" style="flex:1;justify-content:center">
-              <i class="ti ti-lock-check"></i> Set New Password
-            </button>
-            <button type="button" class="btn btn--outline"
-              onclick="document.getElementById('resetStep1').style.display='block';document.getElementById('resetStep2').style.display='none'"
-              style="justify-content:center">
-              Back
-            </button>
-          </div>
-        </div>
         </form>
       </div>
 
@@ -346,7 +331,7 @@
     </div>
   </main>
 
-  <!-- ===================== FOOTER ===================== -->
+  
   <footer class="footer">
     <div class="container footer__grid">
       <div class="footer__brand">
@@ -410,7 +395,7 @@
 
     <div class="footer__bottom">
       <div class="container footer__bottom-inner">
-        <span>&copy; 2026 Ker Properties. All rights reserved.</span>
+        <span>&copy; 2025 Ker Properties. All rights reserved.</span>
         <span>Serving all districts of Uganda 🇺🇬</span>
       </div>
     </div>
@@ -423,21 +408,12 @@
 
   <script src="main.js"></script>
   <script>
-    /* ── Auto-redirect if already logged in ── */
-    /* Strict check: only redirect if value is exactly "true".
-       Uses sessionStorage so the admin session ends when the tab/page
-       is closed, refreshed, or navigated away from — not persisted
-       indefinitely like localStorage. */
     try {
       if (sessionStorage.getItem("kp_admin") === "true") {
         window.location.href = "admin.html";
       }
-    } catch (e) {
-      /* sessionStorage blocked (private mode etc) — do nothing, show login form */
-      console.warn("sessionStorage unavailable:", e);
-    }
+    } catch (e) {}
 
-    /* ── Password show/hide — login field ── */
     const pwToggle     = document.getElementById("pwToggle");
     const pwField      = document.getElementById("lpassword");
     const pwToggleIcon = document.getElementById("pwToggleIcon");
@@ -449,7 +425,6 @@
       });
     }
 
-    /* ── Password show/hide — reset field ── */
     const resetPwToggle = document.getElementById("resetPwToggle");
     const resetNewField = document.getElementById("reset-new");
     const resetPwIcon   = document.getElementById("resetPwIcon");
@@ -461,7 +436,6 @@
       });
     }
 
-    /* ── Forgot password toggle ── */
     const forgotLink  = document.getElementById("forgotLink");
     const resetPanel  = document.getElementById("resetPanel");
     const cancelReset = document.getElementById("cancelReset");
@@ -477,54 +451,6 @@
       const rs = document.getElementById("resetStatus");
       if (rs) { rs.textContent = ""; rs.className = "form-status"; }
     });
-
-    /* ── Reset form ── */
-    const resetForm   = document.getElementById("resetForm");
-    const resetStatus = document.getElementById("resetStatus");
-
-    resetForm?.addEventListener("submit", e => {
-      e.preventDefault();
-      const creds    = getAdminCreds();
-      const contact  = document.getElementById("reset-contact").value.trim().toLowerCase();
-      const newPass  = document.getElementById("reset-new").value;
-      const confirm  = document.getElementById("reset-confirm").value;
-
-      const matchPhone = creds.phone && contact === creds.phone.replace(/\s/g,"").toLowerCase();
-      const matchEmail = creds.email && contact === creds.email.toLowerCase();
-
-      if (!matchPhone && !matchEmail) {
-        resetStatus.textContent = "That phone number or email is not registered. Contact your system administrator.";
-        resetStatus.className   = "form-status error";
-        return;
-      }
-      if (newPass.length < 6) {
-        resetStatus.textContent = "New password must be at least 6 characters.";
-        resetStatus.className   = "form-status error";
-        return;
-      }
-      if (newPass !== confirm) {
-        resetStatus.textContent = "Passwords do not match. Please try again.";
-        resetStatus.className   = "form-status error";
-        return;
-      }
-
-      /* Save new password */
-      creds.password = newPass;
-      saveAdminCreds(creds);
-      resetForm.reset();
-      resetPanel.style.display = "none";
-      resetStatus.textContent  = "";
-      resetStatus.className    = "form-status";
-
-      const ls = document.getElementById("loginStatus");
-      if (ls) {
-        ls.textContent = "✓ Password reset successfully. You can now sign in with your new password.";
-        ls.className   = "form-status success";
-      }
-      showToast("Password updated successfully!");
-    });
-
-    /* Login handled entirely by initLogin() in main.js */
   </script>
 </body>
 </html>

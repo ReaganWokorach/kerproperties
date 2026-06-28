@@ -1,17 +1,6 @@
-/* ============================================================
-   KER PROPERTIES — main.js  v4
-   Fixes:
-   1. Heart icon toggle (add/remove cart) — hardened globals
-   2. Admin edit listings
-   3. Enquire → property detail modal + enquiry form to admin
-   4. Messages visible from ANY browser via Netlify Forms
-   5. Active nav underline on all pages
-   6. Password reset — works even before phone/email saved
-   ============================================================ */
+/* Ker Properties — main.js */
 
-/* ============================================================
-   UGANDA DISTRICTS
-   ============================================================ */
+/* Uganda districts for dropdowns */
 const UGANDA_DISTRICTS = [
   { value: "kampala",     label: "Kampala" },
   { value: "gulu",        label: "Gulu" },
@@ -80,9 +69,7 @@ function populateDistrictDropdowns() {
   });
 }
 
-/* ============================================================
-   1. LISTINGS DATA
-   ============================================================ */
+/* Default listings (used when localStorage is empty) */
 const DEFAULT_LISTINGS = [
   { id:1,  type:"land-sale", title:"50×100ft Plot, Layibi",        location:"Layibi Division, Gulu City",    locationKey:"gulu",      price:45000000,  priceLabel:"UGX 45,000,000",  priceNote:"Negotiable",       features:["50×100ft","Titled","Near Road"],          featureIcons:["ti-ruler","ti-certificate","ti-road"],           description:"Prime plot in Layibi Division, Gulu City. Title deed ready. Near tarmac road.",                                photos:[], available:true, featured:true  },
   { id:2,  type:"land-sale", title:"1 Acre Plot, Pece Division",   location:"Pece, Gulu District",           locationKey:"gulu",      price:120000000, priceLabel:"UGX 120,000,000", priceNote:"Firm price",       features:["1 Acre","Mailo Title","Flat land"],       featureIcons:["ti-ruler","ti-certificate","ti-mountain"],       description:"Large flat acre in Pece Division. Mailo land title. Suitable for development.",                               photos:[], available:true, featured:true  },
@@ -100,9 +87,7 @@ const DEFAULT_LISTINGS = [
   { id:14, type:"land-rent",  title:"1-Acre Farm Land, Lira",         location:"Ojwina Division, Lira City",   locationKey:"lira",      price:150000,    priceLabel:"UGX 150,000",     priceNote:"per month",        features:["1 Acre","Fertile soil","Water access"],   featureIcons:["ti-ruler","ti-plant","ti-droplet"],              description:"Fertile farmland available for monthly lease in Lira. Suitable for agriculture.",                             photos:[], available:true, featured:true  },
 ];
 
-/* ============================================================
-   2. DATA HELPERS
-   ============================================================ */
+/* Listings storage */
 function getListings() {
   try {
     const stored = localStorage.getItem("kp_listings");
@@ -113,9 +98,7 @@ function saveListings(data) {
   try { localStorage.setItem("kp_listings", JSON.stringify(data)); } catch(e) { console.warn("saveListings:", e); }
 }
 
-/* ============================================================
-   3. CART — FIX #1 (heart toggle)
-   ============================================================ */
+/* Cart */
 function getCart() {
   try { return JSON.parse(localStorage.getItem("kp_cart")) || []; } catch { return []; }
 }
@@ -124,7 +107,7 @@ function saveCart(cart) {
   updateCartBadge();
 }
 
-/* Heart toggle: click once = add (purple heart), click again = remove (fix #1) */
+/* Add or remove a listing from the enquiry cart */
 function toggleCart(id) {
   const listings = getListings();
   const item     = listings.find(l => l.id === Number(id));
@@ -147,7 +130,6 @@ function toggleCart(id) {
   }
 }
 
-/* Update ALL heart buttons for a listing id */
 function _updateHearts(id, inCart) {
   document.querySelectorAll(`.prop-card__save[data-id="${id}"]`).forEach(btn => {
     btn.classList.toggle("saved", inCart);
@@ -173,7 +155,6 @@ function isInCart(id) { return getCart().some(c => Number(c.id) === Number(id));
 function updateCartBadge() {
   const count = getCart().length;
 
-  /* ── Navbar cart badge ── */
   document.querySelectorAll("#cartBadge").forEach(b => {
     const changed = b.textContent !== String(count);
     b.textContent   = count;
@@ -185,19 +166,15 @@ function updateCartBadge() {
     }
   });
 
-  /* ── Cart page: "Saved Properties" header pill ── */
   const countPill = document.getElementById("cartItemCount");
   if (countPill) countPill.textContent = count;
 
-  /* ── Cart page: Enquiry Summary — "Properties saved" row ── */
   const countSide = document.getElementById("cartItemCountSide");
   if (countSide) countSide.textContent = count;
 
-  /* ── Cart page: Enquiry Summary — "Total items" row ── */
   const countTotal = document.getElementById("cartItemCountTotal");
   if (countTotal) countTotal.textContent = count;
 
-  /* ── Cart page: show/hide panels when last item removed ── */
   const headerRow = document.getElementById("cartHeaderRow");
   const summaryEl = document.getElementById("cartSummary");
   const emptyEl   = document.getElementById("cartEmpty");
@@ -214,17 +191,13 @@ function removeFromCart(id) {
   _updateHearts(id, false);
 }
 
-/* ============================================================
-   4. PROPERTY DETAIL MODAL (fix #3)
-      Opens when "Enquire" is clicked — shows full details
-      + a form that submits to Netlify AND saves locally
-   ============================================================ */
+/* Property detail modal */
 function openDetailModal(id) {
   const listings = getListings();
   const item     = listings.find(l => l.id === Number(id));
   if (!item) return;
 
-  /* Remove any existing modal */
+  
   document.getElementById("propDetailModal")?.remove();
 
   const photos = item.photos && item.photos.length > 0;
@@ -368,7 +341,7 @@ function openDetailModal(id) {
         </div>
       </div>
 
-      <!-- Enquiry form — fix #3 + fix #4 -->
+      <!-- Enquiry form -->
       <div style="padding:0 2rem 2rem">
         <h3 style="font-family:var(--font-serif);font-size:1.15rem;font-weight:700;
           color:var(--text-primary);margin-bottom:1.25rem;padding-bottom:.85rem;
@@ -425,10 +398,9 @@ function openDetailModal(id) {
 
   document.body.appendChild(modal);
 
-  /* Close on backdrop click */
   modal.addEventListener("click", e => { if (e.target === modal) closeDetailModal(); });
 
-  /* Form submit — Netlify + local inbox */
+  /* Submit to Netlify and save locally */
   const form = document.getElementById("modalEnquiryForm");
   form?.addEventListener("submit", async e => {
     e.preventDefault();
@@ -451,7 +423,7 @@ function openDetailModal(id) {
       const body = new URLSearchParams(new FormData(form)).toString();
       await fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body });
 
-      /* Save to local inbox so admin sees it on THIS browser too */
+    
       saveMessage({
         from:    name,
         phone,
@@ -495,7 +467,6 @@ function openDetailModal(id) {
     });
   };
 
-  /* Prevent body scroll */
   document.body.style.overflow = "hidden";
 }
 
@@ -504,9 +475,7 @@ function closeDetailModal() {
   document.body.style.overflow = "";
 }
 
-/* ============================================================
-   5. RENDER PROPERTY CARDS
-   ============================================================ */
+/* Property card HTML */
 function createCard(listing) {
   const inCart   = isInCart(listing.id);
   const features = listing.features.map((f, i) =>
@@ -568,7 +537,7 @@ function createCard(listing) {
             ${listing.priceLabel}
             <span>${listing.priceNote}</span>
           </div>
-          <!-- Enquire → opens detail modal (fix #3) -->
+
           <button class="prop-card__cta" onclick="openDetailModal(${listing.id})">
             <i class="ti ti-info-circle"></i> Details
           </button>
@@ -577,7 +546,7 @@ function createCard(listing) {
     </div>`;
 }
 
-/* Photo slideshow init */
+/* Card photo dot nav */
 function initCardSlideshows() {
   document.querySelectorAll(".prop-card").forEach(card => {
     const dots   = card.querySelectorAll(".prop-card__photo-dot");
@@ -591,13 +560,11 @@ function initCardSlideshows() {
         dots.forEach((d, i) => d.classList.toggle("active", i === idx));
       });
     });
-    /* Auto-slide disabled — only main photo shown on card */
+    
   });
 }
 
-/* ============================================================
-   6. RENDER — Home featured listings
-   ============================================================ */
+/* Home page featured listings */
 function renderHomeListings() {
   const listings = getListings();
   const landGrid = document.getElementById("landGrid");
@@ -618,9 +585,7 @@ function renderHomeListings() {
   initCardSlideshows();
 }
 
-/* ============================================================
-   7. RENDER — Properties page
-   ============================================================ */
+/* Properties page listing grid */
 function renderPropertyPage(results) {
   const grid    = document.getElementById("allPropertiesGrid");
   const countEl = document.getElementById("filterCount");
@@ -634,9 +599,7 @@ function renderPropertyPage(results) {
   initCardSlideshows();
 }
 
-/* ============================================================
-   8. SEARCH & FILTER
-   ============================================================ */
+/* Search and filter */
 function handleSearch(e) {
   if (e) e.preventDefault();
   const query      = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
@@ -708,9 +671,7 @@ function initHeroTags() {
   });
 }
 
-/* ============================================================
-   9. NAVBAR — active link (fix #5), scroll, hamburger
-   ============================================================ */
+/* Navbar */
 function initNavbar() {
   const navbar    = document.getElementById("navbar");
   const hamburger = document.getElementById("hamburger");
@@ -734,7 +695,7 @@ function initNavbar() {
     });
   }
 
-  /* Active link — fix #5: robust filename matching */
+  /* Active nav link */
   const raw  = window.location.pathname;
   const page = raw.split("/").pop() || "index.html";
   /* Normalise: empty string or "/" = home */
@@ -749,9 +710,7 @@ function initNavbar() {
   });
 }
 
-/* ============================================================
-   10. COUNTERS
-   ============================================================ */
+/* Animated stat counters */
 function animateCounter(el, target, duration = 1800) {
   let start = null;
   const step = ts => {
@@ -781,9 +740,7 @@ function initCounters() {
   observer.observe(statsSection);
 }
 
-/* ============================================================
-   11. FADE-IN ON SCROLL
-   ============================================================ */
+/* Scroll fade-in */
 function observeFadeIns() {
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -793,20 +750,11 @@ function observeFadeIns() {
   document.querySelectorAll(".fade-in:not(.visible)").forEach(el => observer.observe(el));
 }
 
-/* ============================================================
-   12. MESSAGES
-   Messages are saved locally so the admin sees them on this
-   browser instantly, sorted into 3 categories: contact, reviews,
-   enquiry. They are also submitted to Netlify Forms, which is
-   the reliable cross-device channel — email alerts for new
-   submissions are configured once in Netlify (Site → Forms →
-   Form notifications), not inside this app.
-   ============================================================ */
+/* Messages (saved locally; also sent via Netlify Forms) */
 function getMessages() {
   try { return JSON.parse(localStorage.getItem("kp_messages")) || []; } catch { return []; }
 }
 
-/* Collapse the various Netlify form names into the 3 admin categories */
 function _normaliseCategory(type) {
   if (type === "reviews" || type === "review") return "reviews";
   if (type === "property-enquiry" || type === "enquiry") return "enquiry";
@@ -828,9 +776,7 @@ function deleteMessage(id) {
 }
 function getUnreadCount() { return getMessages().filter(m => m.unread).length; }
 
-/* ============================================================
-   13. CONTACT FORM — fix #4 (Netlify is the reliable channel)
-   ============================================================ */
+/* Contact form */
 function initContactForm() {
   const form      = document.getElementById("contactForm");
   const status    = document.getElementById("formStatus");
@@ -855,7 +801,7 @@ function initContactForm() {
     try {
       const body = new URLSearchParams(new FormData(form)).toString();
       await fetch("/", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body });
-      /* Also save locally so admin sees it on their browser */
+    
       saveMessage({
         from:    name,
         phone,
@@ -875,9 +821,7 @@ function initContactForm() {
   });
 }
 
-/* ============================================================
-   14. TESTIMONIES — star picker + review form
-   ============================================================ */
+/* Testimonies — star picker and review form */
 function initStarPicker() {
   const picker = document.querySelector(".star-picker");
   const input  = document.getElementById("ratingInput");
@@ -942,9 +886,7 @@ function initReviewForm() {
   });
 }
 
-/* ============================================================
-   15. CART PAGE
-   ============================================================ */
+/* Cart page */
 function renderCartPage() {
   const itemsEl    = document.getElementById("cartItems");
   const emptyEl    = document.getElementById("cartEmpty");
@@ -969,7 +911,6 @@ function renderCartPage() {
 
   if (empty) { itemsEl.innerHTML = ""; return; }
 
-  /* Sync heart buttons on all property cards for items in cart */
   cart.forEach(c => _updateHearts(c.id, true));
 
   itemsEl.innerHTML = cart.map(item => `
@@ -1011,11 +952,9 @@ function removeCartItem(id) {
   showToast("Item removed from enquiry list.");
 }
 
-/* ============================================================
-   16. ADMIN CREDENTIALS — fix #6 (password reset)
-   ============================================================ */
+/* Admin credentials */
 const ADMIN_KEY = "kp_admin_creds";
-const DEFAULT_CREDS = { username: "admin", password: "Ker@2026", phone: "", email: "" };
+const DEFAULT_CREDS = { username: "admin", password: "ker2025", phone: "", email: "" };
 
 function getAdminCreds() {
   try {
@@ -1027,24 +966,18 @@ function saveAdminCreds(creds) {
   try { localStorage.setItem(ADMIN_KEY, JSON.stringify(creds)); } catch(e) {}
 }
 
-/* ============================================================
-   17. LOGIN — fix #6 (password reset works without saved phone/email)
-   ============================================================ */
+/* Login */
 function initLogin() {
   const form   = document.getElementById("loginForm");
   const status = document.getElementById("loginStatus");
   if (!form) return;
 
-  /* Only auto-redirect when on login page */
-  const onLoginPage = window.location.pathname.includes("login");
-  if (onLoginPage) {
-    try {
-      if (sessionStorage.getItem("kp_admin") === "true") {
-        window.location.href = "admin.html";
-        return;
-      }
-    } catch(e) {}
-  }
+  try {
+    if (window.location.pathname.includes("login") && sessionStorage.getItem("kp_admin") === "true") {
+      window.location.href = "admin.html";
+      return;
+    }
+  } catch(e) {}
 
   form.addEventListener("submit", e => {
     e.preventDefault();
@@ -1062,26 +995,20 @@ function initLogin() {
     }
   });
 
-  /* ── OTP-secured password reset ──────────────────────────────
-     Step 1: Admin enters recovery phone/email → OTP generated & "sent"
-     Step 2: Admin enters OTP + new password  → saved only if OTP matches
-     ─────────────────────────────────────────────────────────────────── */
+  /* Password reset — OTP flow */
   const resetForm   = document.getElementById("resetForm");
   const resetStatus = document.getElementById("resetStatus");
   if (!resetForm) return;
 
-  /* OTP state (session-only, cleared on page reload) */
-  let _otpCode       = null;
-  let _otpContact    = null;  /* which contact was verified */
-  let _otpExpiry     = 0;     /* epoch ms */
-  const OTP_TTL_MS   = 10 * 60 * 1000; /* 10 minutes */
+  let _otpCode   = null;
+  let _otpExpiry = 0;
+  const OTP_TTL  = 10 * 60 * 1000; // 10 minutes
 
-  function _generateOTP() {
-    return String(Math.floor(100000 + Math.random() * 900000)); /* 6 digits */
+  function _makeOTP() {
+    return String(Math.floor(100000 + Math.random() * 900000));
   }
 
-  function _renderResetStep(step) {
-    /* step 1 = contact entry, step 2 = OTP + new password */
+  function _showStep(step) {
     const s1 = document.getElementById("resetStep1");
     const s2 = document.getElementById("resetStep2");
     if (s1) s1.style.display = step === 1 ? "block" : "none";
@@ -1089,19 +1016,36 @@ function initLogin() {
     if (resetStatus) { resetStatus.textContent = ""; resetStatus.className = "form-status"; }
   }
 
-  /* Step 1 button — "Send Code" */
-  const sendOtpBtn = document.getElementById("sendOtpBtn");
-  sendOtpBtn?.addEventListener("click", () => {
+  async function _sendOtpEmail(toEmail, toPhone, code) {
+    // Uses EmailJS — configure Service ID, Template ID, Public Key in Admin → My Account
+    try {
+      const cfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
+      if (cfg && cfg.serviceId && cfg.templateId && cfg.publicKey && typeof emailjs !== "undefined") {
+        emailjs.init({ publicKey: cfg.publicKey });
+        await emailjs.send(cfg.serviceId, cfg.templateId, {
+          to_email:  toEmail || "",
+          to_phone:  toPhone || "",
+          otp_code:  code,
+          otp_expiry: "10 minutes",
+          site_name: "Ker Properties Admin",
+        });
+        return true;
+      }
+    } catch(e) { console.warn("EmailJS send failed:", e); }
+    return false;
+  }
+
+  document.getElementById("sendOtpBtn")?.addEventListener("click", async function() {
     const creds   = getAdminCreds();
     const contact = (document.getElementById("reset-contact")?.value || "").trim().toLowerCase();
 
     if (!contact) {
-      resetStatus.textContent = "Please enter your recovery phone number or email address.";
+      resetStatus.textContent = "Please enter your recovery phone number or email.";
       resetStatus.className   = "form-status error";
       return;
     }
     if (!creds.phone && !creds.email) {
-      resetStatus.textContent = "No recovery contact is saved yet. Log in and set one in My Account first.";
+      resetStatus.textContent = "No recovery contact saved. Log in and set one under My Account first.";
       resetStatus.className   = "form-status error";
       return;
     }
@@ -1117,52 +1061,66 @@ function initLogin() {
       return;
     }
 
-    /* Generate OTP */
-    _otpCode    = _generateOTP();
-    _otpContact = contact;
-    _otpExpiry  = Date.now() + OTP_TTL_MS;
+    this.disabled = true;
+    this.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Sending…';
 
-    /* ── Delivery note ──────────────────────────────────────────────
-       In production: POST this OTP to an SMS/email API (Africa's
-       Talking, Twilio, EmailJS, etc.) directed at _otpContact.
-       For now we display it in the UI so you can test without a
-       backend. Replace the showToast line with your API call.
-       ──────────────────────────────────────────────────────────────── */
-    showToast(`Your verification code: ${_otpCode}  (valid 10 min)`);
-    console.info("%c🔑 Reset OTP (dev only):", "color:purple;font-weight:bold", _otpCode);
+    _otpCode   = _makeOTP();
+    _otpExpiry = Date.now() + OTP_TTL;
 
-    resetStatus.textContent = `A 6-digit code has been sent to ${matchEmail ? creds.email : creds.phone.replace(/.(?=.{4})/g,"*")}. Enter it below.`;
-    resetStatus.className   = "form-status success";
-    _renderResetStep(2);
+    const sent = await _sendOtpEmail(matchEmail ? creds.email : "", matchPhone ? creds.phone : "", _otpCode);
+
+    this.disabled = false;
+    this.innerHTML = '<i class="ti ti-send"></i> Send Verification Code';
+
+    const maskedContact = matchEmail
+      ? creds.email.replace(/(.{2}).+(@.+)/, "$1***$2")
+      : creds.phone.replace(/.(?=.{4})/g, "*");
+
+    if (sent) {
+      resetStatus.textContent = `A 6-digit code has been sent to ${maskedContact}. It expires in 10 minutes.`;
+    } else {
+      // EmailJS not configured — show code on screen as fallback so admin isn't locked out
+      resetStatus.textContent = `Email delivery not set up yet. Your code is: ${_otpCode} (valid 10 min). Configure EmailJS in Admin → My Account to receive codes by email.`;
+    }
+    resetStatus.className = "form-status success";
+    _showStep(2);
   });
 
-  /* Step 2 form — OTP + new password */
+  /* Resend code */
+  document.getElementById("resendOtpBtn")?.addEventListener("click", function() {
+    _showStep(1);
+    _otpCode   = null;
+    _otpExpiry = 0;
+    document.getElementById("reset-contact").value = "";
+  });
+
+  /* Step 2 — verify code and set new password */
   resetForm.addEventListener("submit", e => {
     e.preventDefault();
     const enteredOtp = (document.getElementById("reset-otp")?.value || "").trim();
-    const newPass    = document.getElementById("reset-new")?.value  || "";
-    const confirm    = document.getElementById("reset-confirm")?.value || "";
+    const newPass    = (document.getElementById("reset-new")?.value  || "");
+    const confirm    = (document.getElementById("reset-confirm")?.value || "");
 
     if (!_otpCode) {
       resetStatus.textContent = "Please request a verification code first.";
       resetStatus.className   = "form-status error";
-      _renderResetStep(1);
+      _showStep(1);
       return;
     }
     if (Date.now() > _otpExpiry) {
-      resetStatus.textContent = "Your verification code has expired. Please request a new one.";
+      resetStatus.textContent = "This code has expired. Please request a new one.";
       resetStatus.className   = "form-status error";
       _otpCode = null;
-      _renderResetStep(1);
+      _showStep(1);
       return;
     }
     if (enteredOtp !== _otpCode) {
-      resetStatus.textContent = "Incorrect verification code. Please check and try again.";
+      resetStatus.textContent = "Incorrect code. Please check and try again.";
       resetStatus.className   = "form-status error";
       return;
     }
     if (newPass.length < 6) {
-      resetStatus.textContent = "New password must be at least 6 characters.";
+      resetStatus.textContent = "Password must be at least 6 characters.";
       resetStatus.className   = "form-status error";
       return;
     }
@@ -1172,20 +1130,17 @@ function initLogin() {
       return;
     }
 
-    /* All checks passed — save new password */
     const creds    = getAdminCreds();
     creds.password = newPass;
     saveAdminCreds(creds);
 
-    /* Invalidate OTP immediately */
-    _otpCode    = null;
-    _otpContact = null;
-    _otpExpiry  = 0;
+    _otpCode   = null;
+    _otpExpiry = 0;
 
     resetForm.reset();
     const panel = document.getElementById("resetPanel");
     if (panel) panel.style.display = "none";
-    _renderResetStep(1);
+    _showStep(1);
 
     const ls = document.getElementById("loginStatus");
     if (ls) { ls.textContent = "✓ Password reset successfully. You can now sign in."; ls.className = "form-status success"; }
@@ -1193,14 +1148,9 @@ function initLogin() {
   });
 }
 
-/* ============================================================
-   18. ADMIN PAGE
-   ============================================================ */
+/* Admin page */
 function initAdmin() {
-  /* Only run on admin.html */
   if (!window.location.pathname.includes("admin")) return;
-  /* Auth already verified by the inline <script> at top of admin.html.
-     If we reach here the session is valid. Just boot the UI. */
   window.addEventListener("pagehide", () => {
     try { sessionStorage.removeItem("kp_admin"); } catch(e) {}
   });
@@ -1213,7 +1163,6 @@ function renderAdminTable() {
   if (!tbody) return;
   const listings   = getListings();
 
-  /* Individual type counts */
   const landSaleCount  = listings.filter(l => l.type === "land-sale").length;
   const landRentCount  = listings.filter(l => l.type === "land-rent").length;
   const houseSaleCount = listings.filter(l => l.type === "house-sale").length;
@@ -1296,7 +1245,7 @@ function renderAdminTable() {
   ).join("");
 }
 
-/* ── Edit listing modal (fix #2) ── */
+/* Edit listing modal */
 function openEditModal(id) {
   const listings = getListings();
   const item     = listings.find(l => l.id === Number(id));
@@ -1432,7 +1381,6 @@ function openEditModal(id) {
   modal.addEventListener("click", e => { if (e.target === modal) closeEditModal(); });
   document.body.style.overflow = "hidden";
 
-  /* Init photo state for this edit session */
   _editPhotos = [...(item.photos || [])];
 
   document.getElementById("editListingForm").addEventListener("submit", e => {
@@ -1558,9 +1506,7 @@ function resetAllListings() {
   showToast("All listings deleted.");
 }
 
-/* ============================================================
-   19. INBOX RENDER — categorised into Contact / Reviews / Enquiry
-   ============================================================ */
+/* Admin inbox */
 let _inboxFilter = "all";
 
 function setInboxFilter(cat) {
@@ -1645,9 +1591,7 @@ function renderInbox() {
   }).join("");
 }
 
-/* ============================================================
-   20. TOAST
-   ============================================================ */
+/* Toast notification */
 let _toastTimer = null;
 function showToast(message) {
   const toast = document.getElementById("toast");
@@ -1658,17 +1602,13 @@ function showToast(message) {
   _toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
 
-/* ============================================================
-   21. BACK TO TOP
-   ============================================================ */
+/* Back to top */
 function initBackToTop() {
   document.getElementById("backToTop")?.addEventListener("click",
     () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
-/* ============================================================
-   22. INIT — DOMContentLoaded
-   ============================================================ */
+/* Init on load */
 document.addEventListener("DOMContentLoaded", () => {
   initNavbar();
   updateCartBadge();
@@ -1691,9 +1631,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchForm) searchForm.addEventListener("submit", handleSearch);
 });
 
-/* ============================================================
-   23. GLOBAL EXPOSURE — all onclick handlers must be global
-   ============================================================ */
+/* Expose functions used in inline onclick handlers */
 window.toggleCart          = toggleCart;
 window.openDetailModal     = openDetailModal;
 window.closeDetailModal    = closeDetailModal;

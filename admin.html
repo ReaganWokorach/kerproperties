@@ -93,7 +93,7 @@
     .inbox-msg__cat-icon--enquiry { background:var(--green-bg); color:var(--green-tag); }
     .inbox-msg__rating { color:#C9952F; font-size:.8rem; letter-spacing:1px; margin-bottom:.35rem; }
 
-    /* ── My Account ── */
+    
     .account-section { max-width:560px; }
     .pw-strength { height:4px; border-radius:2px; margin-top:.35rem; transition:all var(--transition); background:var(--silver-light); width:0; }
     .pw-strength.weak   { background:#e74c3c; width:30%; }
@@ -116,7 +116,7 @@
   </style>
 </head>
 <body>
-  <!-- ★ INSTANT AUTH GUARD — runs before any paint ★ -->
+  
   <script>
     (function() {
       try {
@@ -131,7 +131,7 @@
     })();
   </script>
 
-  <!-- ===================== NAVBAR ===================== -->
+  
   <header class="navbar" id="navbar">
     <div class="container navbar__inner">
       <a href="index.html" class="navbar__logo">
@@ -186,49 +186,49 @@
       <!-- Stat cards -->
       <div class="admin-stats">
 
-        <!-- Land for Sale -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-map-pin"></i></div>
           <div class="admin-stat__val" id="adminLandSaleCount">—</div>
           <div class="admin-stat__label">Land for Sale</div>
         </div>
 
-        <!-- Land for Rent -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-map"></i></div>
           <div class="admin-stat__val" id="adminLandRentCount">—</div>
           <div class="admin-stat__label">Land for Rent</div>
         </div>
 
-        <!-- Houses for Sale -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-home-move"></i></div>
           <div class="admin-stat__val" id="adminHouseSaleCount">—</div>
           <div class="admin-stat__label">Houses for Sale</div>
         </div>
 
-        <!-- Houses for Rent -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-home"></i></div>
           <div class="admin-stat__val" id="adminHouseRentCount">—</div>
           <div class="admin-stat__label">Houses for Rent</div>
         </div>
 
-        <!-- Total (sum of the four above) -->
+        
         <div class="admin-stat fade-in" style="border-top:2px solid var(--purple);padding-top:calc(1.25rem - 2px)">
           <div class="admin-stat__icon" style="background:var(--purple);color:#fff"><i class="ti ti-building-estate"></i></div>
           <div class="admin-stat__val" id="adminTotalCount">—</div>
           <div class="admin-stat__label">Total Listings</div>
         </div>
 
-        <!-- Featured -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-star-filled"></i></div>
           <div class="admin-stat__val" id="adminFeaturedCount">—</div>
           <div class="admin-stat__label">Featured</div>
         </div>
 
-        <!-- Messages -->
+        
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-mail"></i></div>
           <div class="admin-stat__val" id="adminMsgCount">—</div>
@@ -646,7 +646,7 @@
     </div>
   </main>
 
-  <!-- ===================== FOOTER ===================== -->
+  
   <footer class="footer">
     <div class="container footer__grid">
       <div class="footer__brand">
@@ -706,7 +706,7 @@
 
     <div class="footer__bottom">
       <div class="container footer__bottom-inner">
-        <span>&copy; 2026 Ker Properties. All rights reserved.</span>
+        <span>&copy; 2025 Ker Properties. All rights reserved.</span>
         <span>Serving all districts of Uganda 🇺🇬</span>
       </div>
     </div>
@@ -843,7 +843,7 @@
       });
     });
 
-    /* ── Add listing form ── */
+    
     document.getElementById("addListingForm")?.addEventListener("submit", e => {
       e.preventDefault();
       const f        = e.target;
@@ -906,7 +906,7 @@
     window.markAllReadAndRender = markAllReadAndRender;
     window.clearAllMessages     = clearAllMessages;
 
-    /* ── My Account ── */
+    
     function loadAccountForm() {
       const creds  = getAdminCreds();
       const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
@@ -990,7 +990,7 @@
       setTimeout(() => { status.textContent = ""; status.className = "form-status"; }, 4000);
     });
 
-    /* ── Reset all listings ── */
+    
     function resetAllListings() {
       if (!confirm("PERMANENTLY delete ALL listings?\nNothing will remain. This cannot be undone.")) return;
       try { localStorage.removeItem("kp_listings"); } catch(e) {}
@@ -1000,12 +1000,12 @@
     }
     window.resetAllListings = resetAllListings;
 
-    /* ── Init on load ── */
+    
     document.addEventListener("DOMContentLoaded", () => {
       renderAdminTable();
       renderInbox();
 
-      /* Populate account form with saved credentials */
+      
       const creds = getAdminCreds();
       const acUser  = document.getElementById("ac-username");
       const acPhone = document.getElementById("ac-phone");
