@@ -105,8 +105,31 @@
     .table-empty { text-align:center; padding:3rem; color:var(--text-muted); }
     .table-empty i { font-size:2rem; display:block; margin-bottom:.75rem; color:var(--purple-light); opacity:.35; }
   </style>
+  <style>
+    /* 7 stat tiles — responsive grid */
+    .admin-stats {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    @media (min-width: 1100px) {
+      .admin-stats { grid-template-columns: repeat(7, 1fr); }
+    }
+  </style>
 </head>
 <body>
+  <!-- ★ INSTANT AUTH GUARD — runs before any paint ★ -->
+  <script>
+    (function() {
+      try {
+        if (sessionStorage.getItem("kp_admin") !== "true") {
+          sessionStorage.removeItem("kp_admin");
+          /* Replace history entry so Back button doesn't return here */
+          window.location.replace("login.html");
+        }
+      } catch(e) {
+        window.location.replace("login.html");
+      }
+    })();
+  </script>
 
   <!-- ===================== NAVBAR ===================== -->
   <header class="navbar" id="navbar">
@@ -162,31 +185,56 @@
 
       <!-- Stat cards -->
       <div class="admin-stats">
+
+        <!-- Land for Sale -->
         <div class="admin-stat fade-in">
-          <div class="admin-stat__icon"><i class="ti ti-building-estate"></i></div>
+          <div class="admin-stat__icon"><i class="ti ti-map-pin"></i></div>
+          <div class="admin-stat__val" id="adminLandSaleCount">—</div>
+          <div class="admin-stat__label">Land for Sale</div>
+        </div>
+
+        <!-- Land for Rent -->
+        <div class="admin-stat fade-in">
+          <div class="admin-stat__icon"><i class="ti ti-map"></i></div>
+          <div class="admin-stat__val" id="adminLandRentCount">—</div>
+          <div class="admin-stat__label">Land for Rent</div>
+        </div>
+
+        <!-- Houses for Sale -->
+        <div class="admin-stat fade-in">
+          <div class="admin-stat__icon"><i class="ti ti-home-move"></i></div>
+          <div class="admin-stat__val" id="adminHouseSaleCount">—</div>
+          <div class="admin-stat__label">Houses for Sale</div>
+        </div>
+
+        <!-- Houses for Rent -->
+        <div class="admin-stat fade-in">
+          <div class="admin-stat__icon"><i class="ti ti-home"></i></div>
+          <div class="admin-stat__val" id="adminHouseRentCount">—</div>
+          <div class="admin-stat__label">Houses for Rent</div>
+        </div>
+
+        <!-- Total (sum of the four above) -->
+        <div class="admin-stat fade-in" style="border-top:2px solid var(--purple);padding-top:calc(1.25rem - 2px)">
+          <div class="admin-stat__icon" style="background:var(--purple);color:#fff"><i class="ti ti-building-estate"></i></div>
           <div class="admin-stat__val" id="adminTotalCount">—</div>
           <div class="admin-stat__label">Total Listings</div>
         </div>
+
+        <!-- Featured -->
         <div class="admin-stat fade-in">
-          <div class="admin-stat__icon"><i class="ti ti-map-pin"></i></div>
-          <div class="admin-stat__val" id="adminLandCount">—</div>
-          <div class="admin-stat__label">Land for Sale</div>
-        </div>
-        <div class="admin-stat fade-in">
-          <div class="admin-stat__icon"><i class="ti ti-home"></i></div>
-          <div class="admin-stat__val" id="adminRentCount">—</div>
-          <div class="admin-stat__label">Houses for Rent</div>
-        </div>
-        <div class="admin-stat fade-in">
-          <div class="admin-stat__icon"><i class="ti ti-star"></i></div>
+          <div class="admin-stat__icon"><i class="ti ti-star-filled"></i></div>
           <div class="admin-stat__val" id="adminFeaturedCount">—</div>
           <div class="admin-stat__label">Featured</div>
         </div>
+
+        <!-- Messages -->
         <div class="admin-stat fade-in">
           <div class="admin-stat__icon"><i class="ti ti-mail"></i></div>
           <div class="admin-stat__val" id="adminMsgCount">—</div>
           <div class="admin-stat__label">Messages</div>
         </div>
+
       </div>
 
       <!-- Tabs -->

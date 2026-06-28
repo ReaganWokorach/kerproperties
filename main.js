@@ -172,17 +172,41 @@ function isInCart(id) { return getCart().some(c => Number(c.id) === Number(id));
 
 function updateCartBadge() {
   const count = getCart().length;
+
+  /* ── Navbar cart badge ── */
   document.querySelectorAll("#cartBadge").forEach(b => {
     const changed = b.textContent !== String(count);
     b.textContent   = count;
     b.style.display = count > 0 ? "flex" : "none";
     if (changed) {
       b.classList.remove("pop");
-      /* restart animation even if triggered in quick succession */
-      void b.offsetWidth;
+      void b.offsetWidth;           /* restart CSS animation */
       b.classList.add("pop");
     }
   });
+
+  /* ── Cart page: "Saved Properties" header pill ── */
+  const countPill = document.getElementById("cartItemCount");
+  if (countPill) countPill.textContent = count;
+
+  /* ── Cart page: Enquiry Summary — "Properties saved" row ── */
+  const countSide = document.getElementById("cartItemCountSide");
+  if (countSide) countSide.textContent = count;
+
+  /* ── Cart page: Enquiry Summary — "Total items" row ── */
+  const countTotal = document.getElementById("cartItemCountTotal");
+  if (countTotal) countTotal.textContent = count;
+
+  /* ── Cart page: show/hide panels when last item removed ── */
+  const headerRow = document.getElementById("cartHeaderRow");
+  const summaryEl = document.getElementById("cartSummary");
+  const emptyEl   = document.getElementById("cartEmpty");
+  const helpNote  = document.getElementById("cartHelpNote");
+  const isEmpty   = count === 0;
+  if (headerRow) headerRow.style.display = isEmpty ? "none"  : "flex";
+  if (summaryEl) summaryEl.style.display = isEmpty ? "none"  : "block";
+  if (emptyEl)   emptyEl.style.display   = isEmpty ? "block" : "none";
+  if (helpNote)  helpNote.style.display  = isEmpty ? "none"  : "flex";
 }
 
 function removeFromCart(id) {
@@ -979,8 +1003,11 @@ function renderCartPage() {
 }
 
 function removeCartItem(id) {
-  removeFromCart(id);
-  renderCartPage();
+  removeFromCart(id);      /* updates storage + calls updateCartBadge */
+  renderCartPage();        /* re-renders the item list */
+  /* Sync the selected_properties hidden input after removal */
+  const propInput = document.getElementById("selectedPropertiesInput");
+  if (propInput) propInput.value = getCart().map(c => `${c.title} (${c.price})`).join(" | ");
   showToast("Item removed from enquiry list.");
 }
 
@@ -1035,62 +1062,134 @@ function initLogin() {
     }
   });
 
-  /* Password reset panel — fix #6
-     Works even if phone/email not yet saved: shows a fallback setup message */
+  /* ── OTP-secured password reset ──────────────────────────────
+     Step 1: Admin enters recovery phone/email → OTP generated & "sent"
+     Step 2: Admin enters OTP + new password  → saved only if OTP matches
+     ─────────────────────────────────────────────────────────────────── */
   const resetForm   = document.getElementById("resetForm");
   const resetStatus = document.getElementById("resetStatus");
   if (!resetForm) return;
 
-  resetForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const creds    = getAdminCreds();
-    const contact  = (document.getElementById("reset-contact")?.value || "").trim().toLowerCase();
-    const newPass  = document.getElementById("reset-new")?.value || "";
-    const confirm  = document.getElementById("reset-confirm")?.value || "";
+  /* OTP state (session-only, cleared on page reload) */
+  let _otpCode       = null;
+  let _otpContact    = null;  /* which contact was verified */
+  let _otpExpiry     = 0;     /* epoch ms */
+  const OTP_TTL_MS   = 10 * 60 * 1000; /* 10 minutes */
 
-    /* Fix #6 — if no recovery info saved yet, inform admin */
+  function _generateOTP() {
+    return String(Math.floor(100000 + Math.random() * 900000)); /* 6 digits */
+  }
+
+  function _renderResetStep(step) {
+    /* step 1 = contact entry, step 2 = OTP + new password */
+    const s1 = document.getElementById("resetStep1");
+    const s2 = document.getElementById("resetStep2");
+    if (s1) s1.style.display = step === 1 ? "block" : "none";
+    if (s2) s2.style.display = step === 2 ? "block" : "none";
+    if (resetStatus) { resetStatus.textContent = ""; resetStatus.className = "form-status"; }
+  }
+
+  /* Step 1 button — "Send Code" */
+  const sendOtpBtn = document.getElementById("sendOtpBtn");
+  sendOtpBtn?.addEventListener("click", () => {
+    const creds   = getAdminCreds();
+    const contact = (document.getElementById("reset-contact")?.value || "").trim().toLowerCase();
+
+    if (!contact) {
+      resetStatus.textContent = "Please enter your recovery phone number or email address.";
+      resetStatus.className   = "form-status error";
+      return;
+    }
     if (!creds.phone && !creds.email) {
-      if (resetStatus) {
-        resetStatus.textContent = "No recovery phone or email is saved yet. Please log in and go to My Account to set them up first.";
-        resetStatus.className   = "form-status error";
-      }
+      resetStatus.textContent = "No recovery contact is saved yet. Log in and set one in My Account first.";
+      resetStatus.className   = "form-status error";
       return;
     }
 
-    /* Normalise stored phone — remove spaces for comparison */
     const storedPhone = (creds.phone || "").replace(/\s/g, "").toLowerCase();
     const storedEmail = (creds.email || "").toLowerCase();
-
-    const matchPhone = storedPhone && contact.replace(/\s/g,"") === storedPhone;
-    const matchEmail = storedEmail && contact === storedEmail;
+    const matchPhone  = storedPhone && contact.replace(/\s/g, "") === storedPhone;
+    const matchEmail  = storedEmail && contact === storedEmail;
 
     if (!matchPhone && !matchEmail) {
-      if (resetStatus) {
-        resetStatus.textContent = "That phone number or email does not match our records. Try the other one, or contact your system administrator.";
-        resetStatus.className   = "form-status error";
-      }
+      resetStatus.textContent = "That phone number or email is not registered with this account.";
+      resetStatus.className   = "form-status error";
+      return;
+    }
+
+    /* Generate OTP */
+    _otpCode    = _generateOTP();
+    _otpContact = contact;
+    _otpExpiry  = Date.now() + OTP_TTL_MS;
+
+    /* ── Delivery note ──────────────────────────────────────────────
+       In production: POST this OTP to an SMS/email API (Africa's
+       Talking, Twilio, EmailJS, etc.) directed at _otpContact.
+       For now we display it in the UI so you can test without a
+       backend. Replace the showToast line with your API call.
+       ──────────────────────────────────────────────────────────────── */
+    showToast(`Your verification code: ${_otpCode}  (valid 10 min)`);
+    console.info("%c🔑 Reset OTP (dev only):", "color:purple;font-weight:bold", _otpCode);
+
+    resetStatus.textContent = `A 6-digit code has been sent to ${matchEmail ? creds.email : creds.phone.replace(/.(?=.{4})/g,"*")}. Enter it below.`;
+    resetStatus.className   = "form-status success";
+    _renderResetStep(2);
+  });
+
+  /* Step 2 form — OTP + new password */
+  resetForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const enteredOtp = (document.getElementById("reset-otp")?.value || "").trim();
+    const newPass    = document.getElementById("reset-new")?.value  || "";
+    const confirm    = document.getElementById("reset-confirm")?.value || "";
+
+    if (!_otpCode) {
+      resetStatus.textContent = "Please request a verification code first.";
+      resetStatus.className   = "form-status error";
+      _renderResetStep(1);
+      return;
+    }
+    if (Date.now() > _otpExpiry) {
+      resetStatus.textContent = "Your verification code has expired. Please request a new one.";
+      resetStatus.className   = "form-status error";
+      _otpCode = null;
+      _renderResetStep(1);
+      return;
+    }
+    if (enteredOtp !== _otpCode) {
+      resetStatus.textContent = "Incorrect verification code. Please check and try again.";
+      resetStatus.className   = "form-status error";
       return;
     }
     if (newPass.length < 6) {
-      if (resetStatus) { resetStatus.textContent = "New password must be at least 6 characters."; resetStatus.className = "form-status error"; }
+      resetStatus.textContent = "New password must be at least 6 characters.";
+      resetStatus.className   = "form-status error";
       return;
     }
     if (newPass !== confirm) {
-      if (resetStatus) { resetStatus.textContent = "Passwords do not match. Please try again."; resetStatus.className = "form-status error"; }
+      resetStatus.textContent = "Passwords do not match.";
+      resetStatus.className   = "form-status error";
       return;
     }
 
+    /* All checks passed — save new password */
+    const creds    = getAdminCreds();
     creds.password = newPass;
     saveAdminCreds(creds);
-    resetForm.reset();
-    if (resetStatus) { resetStatus.textContent = ""; resetStatus.className = "form-status"; }
 
+    /* Invalidate OTP immediately */
+    _otpCode    = null;
+    _otpContact = null;
+    _otpExpiry  = 0;
+
+    resetForm.reset();
     const panel = document.getElementById("resetPanel");
     if (panel) panel.style.display = "none";
+    _renderResetStep(1);
 
     const ls = document.getElementById("loginStatus");
-    if (ls) { ls.textContent = "✓ Password reset successfully. You can now sign in with your new password."; ls.className = "form-status success"; }
-    showToast("Password updated!");
+    if (ls) { ls.textContent = "✓ Password reset successfully. You can now sign in."; ls.className = "form-status success"; }
+    showToast("Password updated successfully!");
   });
 }
 
@@ -1100,22 +1199,11 @@ function initLogin() {
 function initAdmin() {
   /* Only run on admin.html */
   if (!window.location.pathname.includes("admin")) return;
-  try {
-    if (sessionStorage.getItem("kp_admin") !== "true") {
-      sessionStorage.removeItem("kp_admin");
-      window.location.href = "login.html";
-      return;
-    }
-  } catch(e) { window.location.href = "login.html"; return; }
-
-  /* Security: sign out the moment this page is left — by refreshing,
-     navigating to any other page (including clicking a public nav link),
-     or closing the tab. The admin session only stays alive while this
-     exact page instance remains open. */
+  /* Auth already verified by the inline <script> at top of admin.html.
+     If we reach here the session is valid. Just boot the UI. */
   window.addEventListener("pagehide", () => {
     try { sessionStorage.removeItem("kp_admin"); } catch(e) {}
   });
-
   renderAdminTable();
   renderInbox();
 }
@@ -1123,13 +1211,25 @@ function initAdmin() {
 function renderAdminTable() {
   const tbody = document.getElementById("adminTableBody");
   if (!tbody) return;
-  const listings = getListings();
+  const listings   = getListings();
+
+  /* Individual type counts */
+  const landSaleCount  = listings.filter(l => l.type === "land-sale").length;
+  const landRentCount  = listings.filter(l => l.type === "land-rent").length;
+  const houseSaleCount = listings.filter(l => l.type === "house-sale").length;
+  const houseRentCount = listings.filter(l => l.type === "house-rent").length;
+  const totalCount     = landSaleCount + landRentCount + houseSaleCount + houseRentCount;
+  const featuredCount  = listings.filter(l => l.featured).length;
+  const msgCount       = getMessages().length;
+
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set("adminTotalCount",    listings.length);
-  set("adminLandCount",     listings.filter(l => l.type === "land-sale" || l.type === "land-rent").length);
-  set("adminRentCount",     listings.filter(l => l.type === "house-rent" || l.type === "house-sale").length);
-  set("adminFeaturedCount", listings.filter(l => l.featured).length);
-  set("adminMsgCount",      getMessages().length);
+  set("adminTotalCount",     totalCount);
+  set("adminLandSaleCount",  landSaleCount);
+  set("adminLandRentCount",  landRentCount);
+  set("adminHouseSaleCount", houseSaleCount);
+  set("adminHouseRentCount", houseRentCount);
+  set("adminFeaturedCount",  featuredCount);
+  set("adminMsgCount",       msgCount);
 
   const unread = getUnreadCount();
   const badge  = document.getElementById("inboxBadge");
