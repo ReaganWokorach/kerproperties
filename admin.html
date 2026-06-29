@@ -120,7 +120,17 @@
 <body>
   
   <script>
-    /* Auth guard is handled in initAdmin() via Supabase session check */
+    (function() {
+      try {
+        if (sessionStorage.getItem("kp_admin") !== "true") {
+          sessionStorage.removeItem("kp_admin");
+          /* Replace history entry so Back button doesn't return here */
+          window.location.replace("login.html");
+        }
+      } catch(e) {
+        window.location.replace("login.html");
+      }
+    })();
   </script>
 
   
@@ -714,9 +724,7 @@
     <i class="ti ti-arrow-up"></i>
   </button>
 
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="main.js"></script>
   <script>
     /* ════════════════════════════════
