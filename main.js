@@ -771,6 +771,13 @@ function saveMessage(data) {
 function markAllRead() {
   try { localStorage.setItem("kp_messages", JSON.stringify(getMessages().map(m => ({ ...m, unread: false })))); } catch(e) {}
 }
+
+function markOneRead(id) {
+  const msgs = getMessages().map(m => m.id === id ? { ...m, unread: false } : m);
+  try { localStorage.setItem("kp_messages", JSON.stringify(msgs)); } catch(e) {}
+  renderInbox();
+  renderAdminTable();
+}
 function deleteMessage(id) {
   try { localStorage.setItem("kp_messages", JSON.stringify(getMessages().filter(m => m.id !== id))); } catch(e) {}
 }
@@ -954,7 +961,7 @@ function removeCartItem(id) {
 
 /* Admin credentials */
 const ADMIN_KEY = "kp_admin_creds";
-const DEFAULT_CREDS = { username: "admin", password: "Ker@2026", phone: "", email: "" };
+const DEFAULT_CREDS = { username: "admin", password: "ker2025", phone: "", email: "" };
 
 function getAdminCreds() {
   try {
@@ -1527,43 +1534,52 @@ function renderInbox() {
   const container = document.getElementById("inboxList");
   if (!container) return;
   const messages = getMessages();
-  const unread   = getUnreadCount();
-  const badge    = document.getElementById("inboxBadge");
-  if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? "inline" : "none"; }
+  const totalUnread = getUnreadCount();
 
-  /* Update per-category counts on the filter pills */
-  const counts = { all: messages.length, contact: 0, reviews: 0, enquiry: 0 };
-  messages.forEach(m => { const c = m.category || _normaliseCategory(m.type); if (counts[c] !== undefined) counts[c]++; });
-  Object.keys(counts).forEach(cat => {
+  /* Tab badge — only shows when there are unread messages */
+  const badge = document.getElementById("inboxBadge");
+  if (badge) { badge.textContent = totalUnread; badge.style.display = totalUnread > 0 ? "inline" : "none"; }
+
+  /* Category pill counts = unread per category, hidden when zero */
+  const unreadCounts = { all: totalUnread, contact: 0, reviews: 0, enquiry: 0 };
+  messages.filter(m => m.unread).forEach(m => {
+    const c = m.category || _normaliseCategory(m.type);
+    if (unreadCounts[c] !== undefined) unreadCounts[c]++;
+  });
+  Object.keys(unreadCounts).forEach(cat => {
     const el = document.getElementById(`catCount-${cat}`);
-    if (el) el.textContent = counts[cat];
+    if (!el) return;
+    const n = unreadCounts[cat];
+    el.textContent    = n;
+    el.style.display  = n > 0 ? "" : "none";
   });
 
   const visible = _inboxFilter === "all"
     ? messages
     : messages.filter(m => (m.category || _normaliseCategory(m.type)) === _inboxFilter);
 
+  const visibleUnread = visible.filter(m => m.unread).length;
   const note = document.getElementById("inboxCountNote");
   if (note) {
     const catLabel = _inboxFilter === "all" ? "" : ` in ${CATEGORY_META[_inboxFilter]?.label || _inboxFilter}`;
-    note.textContent = `${visible.length} message${visible.length !== 1 ? "s" : ""}${catLabel} · ${unread} unread total`;
+    note.textContent = visibleUnread > 0
+      ? `${visible.length} message${visible.length !== 1 ? "s" : ""}${catLabel} — ${visibleUnread} unread`
+      : `${visible.length} message${visible.length !== 1 ? "s" : ""}${catLabel}`;
   }
 
   if (visible.length === 0) {
     const emptyLabel = _inboxFilter === "all" ? "" : CATEGORY_META[_inboxFilter]?.label.toLowerCase() || "";
     container.innerHTML = `<div class="inbox-empty">
       <i class="ti ti-mail-off"></i>
-      <p>No ${emptyLabel} messages${emptyLabel ? "" : " yet"}.<br/>
-      Messages from the contact form, property enquiries, and reviews appear here.<br/>
-      <span style="font-size:.8rem;color:var(--navy)">For email alerts on every new submission, set up Netlify form notifications (see above).</span></p>
+      <p>No ${emptyLabel} messages${emptyLabel ? "" : " yet"}.</p>
     </div>`;
     return;
   }
 
   container.innerHTML = visible.map(m => {
     const category = m.category || _normaliseCategory(m.type);
-    const meta = CATEGORY_META[category] || CATEGORY_META.contact;
-    const stars = category === "reviews" && m.rating
+    const meta     = CATEGORY_META[category] || CATEGORY_META.contact;
+    const stars    = category === "reviews" && m.rating
       ? `<div class="inbox-msg__rating">${"★".repeat(m.rating)}${"☆".repeat(5 - m.rating)}</div>`
       : "";
     return `
@@ -1580,9 +1596,14 @@ function renderInbox() {
       <div class="inbox-msg__body">${m.body}</div>
       <div class="inbox-msg__meta">
         <span class="inbox-msg__tag inbox-msg__tag--${meta.cssTag}"><i class="ti ${meta.icon}"></i> ${meta.label}</span>
-        ${m.phone    ? `<span class="inbox-msg__tag"><i class="ti ti-phone"></i> ${m.phone}</span>` : ""}
-        ${m.email    ? `<span class="inbox-msg__tag"><i class="ti ti-mail"></i> ${m.email}</span>` : ""}
+        ${m.phone    ? `<span class="inbox-msg__tag"><i class="ti ti-phone"></i> ${m.phone}</span>`    : ""}
+        ${m.email    ? `<span class="inbox-msg__tag"><i class="ti ti-mail"></i> ${m.email}</span>`     : ""}
         ${m.location ? `<span class="inbox-msg__tag"><i class="ti ti-map-pin"></i> ${m.location}</span>` : ""}
+        ${m.unread
+          ? `<button class="inbox-read-btn" onclick="markOneRead(${m.id})">
+               <i class="ti ti-check"></i> Mark as Read
+             </button>`
+          : `<span class="inbox-msg__tag" style="color:var(--text-muted)"><i class="ti ti-eye"></i> Read</span>`}
         <button class="inbox-del-btn" onclick="deleteSingleMessage(${m.id})">
           <i class="ti ti-trash"></i> Delete
         </button>
@@ -1654,6 +1675,7 @@ window.renderInbox         = renderInbox;
 window.deleteMessage       = deleteMessage;
 window.deleteSingleMessage = (id) => { deleteMessage(id); renderInbox(); renderAdminTable(); };
 window.markAllRead         = markAllRead;
+window.markOneRead         = markOneRead;
 window.getMessages         = getMessages;
 window.getUnreadCount      = getUnreadCount;
 window.saveMessage         = saveMessage;

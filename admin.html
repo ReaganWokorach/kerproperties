@@ -71,6 +71,8 @@
     .inbox-msg__tag { font-size:.68rem; background:var(--purple-pale); color:var(--purple); padding:2px 8px; border-radius:100px; font-weight:500; border:1px solid rgba(91,45,142,.15); }
     .inbox-del-btn { margin-left:auto; background:none; border:1.5px solid var(--silver-light); border-radius:var(--radius-sm); padding:.25rem .65rem; font-size:.75rem; color:var(--text-muted); cursor:pointer; transition:all var(--transition); font-family:var(--font-sans); display:flex; align-items:center; gap:4px; }
     .inbox-del-btn:hover { background:var(--red-bg); border-color:var(--red-tag); color:var(--red-tag); }
+    .inbox-read-btn { background:none; border:1.5px solid var(--purple-light); border-radius:var(--radius-sm); padding:.25rem .65rem; font-size:.75rem; color:var(--purple); cursor:pointer; transition:all var(--transition); font-family:var(--font-sans); display:flex; align-items:center; gap:4px; }
+    .inbox-read-btn:hover { background:var(--purple-pale); }
     .inbox-empty { text-align:center; padding:4rem; color:var(--text-muted); }
     .inbox-empty i { font-size:2.5rem; display:block; margin-bottom:.75rem; color:var(--purple-light); opacity:.35; }
 
@@ -426,6 +428,14 @@
               <strong>How messages reach you:</strong><br />
               Messages submitted on <em>this browser</em> appear below instantly, sorted into
               <strong>Contact</strong>, <strong>Reviews</strong>, and <strong>Enquiry</strong>.
+              To get an <strong>email the moment any visitor submits a form</strong> — from any device,
+              not just this one — set it up once in Netlify (not here):
+              <a href="https://app.netlify.com" target="_blank" rel="noopener"
+                 style="color:var(--purple);font-weight:600">app.netlify.com</a>
+              → your site → <strong>Forms → Settings &amp; usage → Form notifications → Add notification → Email notification</strong>,
+              then enter the email address that should receive them. Do this once for each form
+              (<em>contact</em>, <em>enquiry</em>, <em>property-enquiry</em>, <em>reviews</em>) and every
+              future submission — from anyone, on any device — lands straight in that inbox.
             </div>
           </div>
 
@@ -480,7 +490,7 @@
             <div class="inbox-notice" style="margin-bottom:1.5rem">
               <i class="ti ti-device-laptop"></i>
               <div>
-                <strong>One important note:</strong> Jal Ronald, I'm yet to fix this, but for now know that this site has no server or database, so
+                <strong>One important note:</strong> this site has no server or database, so
                 whatever username and password you save here are remembered only on
                 <strong>this device's browser</strong>. If you change your password here and then
                 try to log in from a different phone or computer, that other device still expects
@@ -560,6 +570,30 @@
               </button>
             </form>
           </div>
+
+          <!-- Email Notifications — now handled entirely by Netlify, not stored in the app -->
+          <div style="margin-top:2rem;padding-top:1.75rem;border-top:1px solid var(--silver-light)">
+            <h4 style="font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:.5rem">
+              <i class="ti ti-mail-forward" style="color:var(--purple);margin-right:6px"></i>Email Notifications
+            </h4>
+            <p style="font-size:.84rem;color:var(--text-mid);line-height:1.7;margin-bottom:1rem">
+              Email alerts are set up directly in Netlify — once, for the whole site — so they keep
+              working for every visitor on every device, with no extra account or key to manage here.
+            </p>
+            <ol style="font-size:.84rem;color:var(--text-mid);line-height:1.85;margin:0 0 1.25rem 1.2rem;padding:0">
+              <li>Open <a href="https://app.netlify.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:600">app.netlify.com</a> and select this site.</li>
+              <li>Go to <strong>Forms → Settings &amp; usage → Form notifications</strong>.</li>
+              <li>Click <strong>Add notification → Email notification</strong> and enter the email address that should receive messages.</li>
+              <li>Repeat for each form: <em>contact</em>, <em>enquiry</em>, <em>property-enquiry</em>, and <em>reviews</em>.</li>
+            </ol>
+            <p style="font-size:.82rem;color:var(--text-muted);line-height:1.65">
+              Once set up, that inbox receives an email the instant anyone submits the Contact form,
+              an Enquiry, or a Review — no admin login required to see it land.
+            </p>
+            <a href="https://app.netlify.com" target="_blank" rel="noopener" class="btn btn--outline" style="font-size:.85rem;margin-top:.5rem">
+              <i class="ti ti-external-link"></i> Open Netlify Form Settings
+            </a>
+          </div>
         </div>
       </div>
 
@@ -580,6 +614,9 @@
               <li><a href="contact.html" target="_blank"
                 style="font-size:.875rem;color:var(--purple);display:flex;align-items:center;gap:6px">
                 <i class="ti ti-external-link"></i> Contact Page</a></li>
+              <li><a href="https://app.netlify.com" target="_blank" rel="noopener"
+                style="font-size:.875rem;color:var(--purple);display:flex;align-items:center;gap:6px">
+                <i class="ti ti-external-link"></i> Netlify Dashboard (forms &amp; deploys)</a></li>
             </ul>
           </div>
 
@@ -707,7 +744,7 @@
         document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
         tab.classList.add("active");
         document.getElementById("tab-" + tab.dataset.tab)?.classList.add("active");
-        if (tab.dataset.tab === "inbox")   { markAllRead(); renderInbox(); renderAdminTable(); }
+        if (tab.dataset.tab === "inbox")   { renderInbox(); renderAdminTable(); }
         if (tab.dataset.tab === "account") loadAccountForm();
       });
     });
