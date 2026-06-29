@@ -594,6 +594,53 @@
               <i class="ti ti-external-link"></i> Open Netlify Form Settings
             </a>
           </div>
+
+          <!-- Email Reset Setup — required for "Forgot password?" to work -->
+          <div style="margin-top:2rem;padding-top:1.75rem;border-top:1px solid var(--silver-light)">
+            <h4 style="font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:.4rem">
+              <i class="ti ti-shield-lock" style="color:var(--purple);margin-right:6px"></i>Email Reset Setup
+            </h4>
+            <p style="font-size:.84rem;color:var(--text-mid);line-height:1.65;margin-bottom:1.1rem">
+              This powers the <strong>"Forgot password?"</strong> feature on the login page.
+              When a reset is requested, a 6-digit code is emailed to your recovery address.
+              Uses <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:600">EmailJS</a>
+              (free, no server needed).
+              <a href="https://www.emailjs.com/docs/tutorial/overview/" target="_blank" rel="noopener" style="color:var(--purple)">Setup guide →</a>
+            </p>
+
+            <div class="inbox-notice" style="margin-bottom:1.25rem">
+              <i class="ti ti-info-circle"></i>
+              <div style="font-size:.82rem;line-height:1.6">
+                <strong>Quick steps:</strong> Create a free EmailJS account → add an Email Service (Gmail, Outlook, etc.) → create a Template that includes <code>{{otp_code}}</code> in the body → paste the three IDs below and save.
+              </div>
+            </div>
+
+            <form id="emailjsConfigForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ejs-service">Service ID</label>
+                  <input type="text" id="ejs-service" placeholder="service_xxxxxxx" />
+                </div>
+                <div class="form-group">
+                  <label for="ejs-template">Template ID</label>
+                  <input type="text" id="ejs-template" placeholder="template_xxxxxxx" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="ejs-pubkey">Public Key</label>
+                <input type="text" id="ejs-pubkey" placeholder="Your EmailJS public key" />
+              </div>
+              <div class="form-status" id="ejsStatus" style="text-align:left;margin-bottom:.75rem"></div>
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+                <button type="submit" class="btn btn--primary" style="font-size:.85rem">
+                  <i class="ti ti-device-floppy"></i> Save
+                </button>
+                <button type="button" class="btn btn--outline" style="font-size:.85rem" onclick="testEmailjsOtp()">
+                  <i class="ti ti-send"></i> Send Test Code
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -719,6 +766,7 @@
     <i class="ti ti-arrow-up"></i>
   </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="main.js"></script>
   <script>
     /* ════════════════════════════════
@@ -1016,6 +1064,77 @@
       if (acPhone) acPhone.value = creds.phone    || "";
       if (acEmail) acEmail.value = creds.email    || "";
     });
+
+    /* EmailJS config form — save/load */
+    document.getElementById("emailjsConfigForm")?.addEventListener("submit", e => {
+      e.preventDefault();
+      const cfg = {
+        serviceId:  document.getElementById("ejs-service")?.value.trim(),
+        templateId: document.getElementById("ejs-template")?.value.trim(),
+        publicKey:  document.getElementById("ejs-pubkey")?.value.trim(),
+      };
+      const status = document.getElementById("ejsStatus");
+      if (!cfg.serviceId || !cfg.templateId || !cfg.publicKey) {
+        status.textContent = "All three fields are required.";
+        status.className   = "form-status error";
+        return;
+      }
+      try { localStorage.setItem("kp_emailjs_config", JSON.stringify(cfg)); } catch(e) {}
+      if (typeof emailjs !== "undefined") emailjs.init({ publicKey: cfg.publicKey });
+      status.textContent = "Saved.";
+      status.className   = "form-status success";
+      showToast("EmailJS config saved.");
+    });
+
+    /* Load saved config into the form fields on page open */
+    try {
+      const ejsCfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
+      if (ejsCfg) {
+        const s = document.getElementById("ejs-service");
+        const t = document.getElementById("ejs-template");
+        const p = document.getElementById("ejs-pubkey");
+        if (s) s.value = ejsCfg.serviceId  || "";
+        if (t) t.value = ejsCfg.templateId || "";
+        if (p) p.value = ejsCfg.publicKey  || "";
+        if (typeof emailjs !== "undefined" && ejsCfg.publicKey)
+          emailjs.init({ publicKey: ejsCfg.publicKey });
+      }
+    } catch(e) {}
+
+    /* Send a test code to the admin's recovery email */
+    async function testEmailjsOtp() {
+      const creds = getAdminCreds();
+      const toEmail = creds.email;
+      const status  = document.getElementById("ejsStatus");
+      if (!toEmail) {
+        status.textContent = "Set a recovery email in My Account first.";
+        status.className   = "form-status error";
+        return;
+      }
+      const cfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
+      if (!cfg || !cfg.serviceId || !cfg.templateId || !cfg.publicKey) {
+        status.textContent = "Save your EmailJS config first.";
+        status.className   = "form-status error";
+        return;
+      }
+      status.textContent = "Sending test…";
+      status.className   = "form-status";
+      try {
+        emailjs.init({ publicKey: cfg.publicKey });
+        await emailjs.send(cfg.serviceId, cfg.templateId, {
+          to_email:  toEmail,
+          otp_code:  "123456",
+          site_name: "Ker Properties Admin",
+        });
+        status.textContent = `Test code sent to ${toEmail}. Check your inbox.`;
+        status.className   = "form-status success";
+      } catch(err) {
+        status.textContent = `Failed: ${err?.text || err?.message || "Check your EmailJS credentials."}`;
+        status.className   = "form-status error";
+      }
+    }
+    window.testEmailjsOtp = testEmailjsOtp;
+
   </script>
 </body>
 </html>

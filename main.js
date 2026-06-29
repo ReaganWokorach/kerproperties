@@ -1023,23 +1023,22 @@ function initLogin() {
     if (resetStatus) { resetStatus.textContent = ""; resetStatus.className = "form-status"; }
   }
 
-  async function _sendOtpEmail(toEmail, toPhone, code) {
-    // Uses EmailJS — configure Service ID, Template ID, Public Key in Admin → My Account
+  async function _sendOtpEmail(toEmail, code) {
+    const cfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
+    if (!cfg || !cfg.serviceId || !cfg.templateId || !cfg.publicKey) return "not_configured";
+    if (typeof emailjs === "undefined") return "not_configured";
     try {
-      const cfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
-      if (cfg && cfg.serviceId && cfg.templateId && cfg.publicKey && typeof emailjs !== "undefined") {
-        emailjs.init({ publicKey: cfg.publicKey });
-        await emailjs.send(cfg.serviceId, cfg.templateId, {
-          to_email:  toEmail || "",
-          to_phone:  toPhone || "",
-          otp_code:  code,
-          otp_expiry: "10 minutes",
-          site_name: "Ker Properties Admin",
-        });
-        return true;
-      }
-    } catch(e) { console.warn("EmailJS send failed:", e); }
-    return false;
+      emailjs.init({ publicKey: cfg.publicKey });
+      await emailjs.send(cfg.serviceId, cfg.templateId, {
+        to_email:  toEmail,
+        otp_code:  code,
+        site_name: "Ker Properties Admin",
+      });
+      return "sent";
+    } catch(e) {
+      console.warn("EmailJS error:", e);
+      return "error";
+    }
   }
 
   document.getElementById("sendOtpBtn")?.addEventListener("click", async function() {
@@ -1051,8 +1050,9 @@ function initLogin() {
       resetStatus.className   = "form-status error";
       return;
     }
+
     if (!creds.phone && !creds.email) {
-      resetStatus.textContent = "No recovery contact saved. Log in and set one under My Account first.";
+      resetStatus.textContent = "No recovery contact is saved. Log in first and go to My Account to set your recovery phone and email.";
       resetStatus.className   = "form-status error";
       return;
     }
@@ -1068,29 +1068,44 @@ function initLogin() {
       return;
     }
 
+    /* Require a recovery email — OTP can only be sent to an email address */
+    if (!matchEmail || !creds.email) {
+      resetStatus.textContent = "Password reset requires a recovery email address. Log in and set your recovery email under My Account, then configure email delivery in the Email Reset Setup section.";
+      resetStatus.className   = "form-status error";
+      return;
+    }
+
+    /* Check EmailJS is configured before generating the code */
+    const cfg = JSON.parse(localStorage.getItem("kp_emailjs_config") || "null");
+    if (!cfg || !cfg.serviceId || !cfg.templateId || !cfg.publicKey) {
+      resetStatus.innerHTML = "Email delivery is not set up yet. Log in and go to <strong>My Account → Email Reset Setup</strong> to configure it before you can use password reset.";
+      resetStatus.className = "form-status error";
+      return;
+    }
+
     this.disabled = true;
     this.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Sending…';
 
     _otpCode   = _makeOTP();
     _otpExpiry = Date.now() + OTP_TTL;
 
-    const sent = await _sendOtpEmail(matchEmail ? creds.email : "", matchPhone ? creds.phone : "", _otpCode);
+    const result = await _sendOtpEmail(creds.email, _otpCode);
 
     this.disabled = false;
-    this.innerHTML = '<i class="ti ti-send"></i> Send Verification Code';
+    this.innerHTML = '<i class="ti ti-send"></i> Send Code';
 
-    const maskedContact = matchEmail
-      ? creds.email.replace(/(.{2}).+(@.+)/, "$1***$2")
-      : creds.phone.replace(/.(?=.{4})/g, "*");
-
-    if (sent) {
-      resetStatus.textContent = `A 6-digit code has been sent to ${maskedContact}. It expires in 10 minutes.`;
+    if (result === "sent") {
+      const masked = creds.email.replace(/(.{2}).+(@.+)/, "$1***$2");
+      resetStatus.textContent = `A 6-digit code has been sent to ${masked}. It expires in 10 minutes.`;
+      resetStatus.className   = "form-status success";
+      _showStep(2);
     } else {
-      // EmailJS not configured — show code on screen as fallback so admin isn't locked out
-      resetStatus.textContent = `Email delivery not set up yet. Your code is: ${_otpCode} (valid 10 min). Configure EmailJS in Admin → My Account to receive codes by email.`;
+      /* Delivery failed — invalidate the code immediately, never reveal it */
+      _otpCode   = null;
+      _otpExpiry = 0;
+      resetStatus.textContent = "The code could not be sent. Check your EmailJS configuration under My Account and try again.";
+      resetStatus.className   = "form-status error";
     }
-    resetStatus.className = "form-status success";
-    _showStep(2);
   });
 
   /* Resend code */
