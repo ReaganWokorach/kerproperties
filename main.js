@@ -961,7 +961,7 @@ function removeCartItem(id) {
 
 /* Admin credentials */
 const ADMIN_KEY = "kp_admin_creds";
-const DEFAULT_CREDS = { username: "admin", password: "ker2025", phone: "", email: "" };
+const DEFAULT_CREDS = { username: "admin", password: "Ker@2026", phone: "", email: "" };
 
 function getAdminCreds() {
   try {
